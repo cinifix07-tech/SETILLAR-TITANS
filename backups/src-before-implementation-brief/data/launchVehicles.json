@@ -1,0 +1,26 @@
+[
+  {
+    "id": "swift",
+    "name": "Swift rideshare",
+    "mass": 24,
+    "cost": 20,
+    "comm": 55,
+    "desc": "Lean launch budget • limited payload margin"
+  },
+  {
+    "id": "atlas",
+    "name": "Atlas small launch",
+    "mass": 45,
+    "cost": 34,
+    "comm": 90,
+    "desc": "Balanced capacity • dependable data link"
+  },
+  {
+    "id": "titan",
+    "name": "Titan dedicated",
+    "mass": 70,
+    "cost": 52,
+    "comm": 125,
+    "desc": "Generous capacity • premium cost"
+  }
+]

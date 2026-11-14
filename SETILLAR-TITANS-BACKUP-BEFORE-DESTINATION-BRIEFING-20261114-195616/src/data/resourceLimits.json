@@ -1,0 +1,6 @@
+{
+  "budget": 100,
+  "baselinePowerDemand": 24,
+  "baselineMissionCost": 8,
+  "baselineDataDemand": 18
+}

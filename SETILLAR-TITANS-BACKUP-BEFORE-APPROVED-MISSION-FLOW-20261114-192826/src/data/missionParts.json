@@ -1,0 +1,7 @@
+{
+  "propulsion":[{"id":"chemical","name":"Chemical","cost":16,"mass":18,"power":8,"fuelRate":1,"range":2,"description":"High thrust for short and medium trips."},{"id":"ion","name":"Electric ion","cost":27,"mass":11,"power":30,"fuelRate":0.65,"range":3,"description":"Efficient fuel use, with lower thrust and higher power needs."}],
+  "powerSource":[{"id":"solar","name":"Solar arrays","cost":15,"mass":12,"supply":90,"description":"Lightweight power near the Sun."},{"id":"rtg","name":"Radioisotope generator","cost":39,"mass":17,"supply":65,"description":"Steady power farther from the Sun; higher cost and mass."}],
+  "communications":[{"id":"compact","name":"Compact antenna","cost":8,"mass":3,"capacity":40,"range":1},{"id":"deep","name":"Deep-space dish","cost":21,"mass":8,"capacity":80,"range":2},{"id":"highgain","name":"High-gain array","cost":34,"mass":11,"capacity":120,"range":3}],
+  "shielding":[{"id":"basic","name":"Basic shielding","cost":5,"mass":4,"protection":0.1},{"id":"reinforced","name":"Reinforced shielding","cost":18,"mass":10,"protection":0.55}],
+  "missionLimits":{"budget":280,"fuelMaximum":140,"baseMass":10,"basePower":12}
+}

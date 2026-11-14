@@ -1,0 +1,237 @@
+import { useMemo, useState } from 'react'
+import './App.css'
+import './Dashboard.css'
+import OrbitSimulator from './OrbitSimulator.jsx'
+import { destinationPayloadLimit, getOrbit, orbitOrder, orbitScienceBonus, supportsFullEarthImagingScore } from './orbitData.js'
+
+const craft = [
+  { id: 'pioneer', name: 'Pioneer CubeSat', type: '6U • compact explorer', mass: 8, power: 42, cost: 18, capacity: 24, description: 'A nimble platform for focused, low-power observations.', icon: '◇' },
+  { id: 'pathfinder', name: 'Pathfinder Bus', type: 'Small satellite • balanced', mass: 18, power: 95, cost: 32, capacity: 42, description: 'Room for capable instruments and dependable downlink.', icon: '◈' },
+  { id: 'horizon', name: 'Horizon Surveyor', type: 'Earth science • extended', mass: 32, power: 150, cost: 48, capacity: 60, description: 'A larger platform for ambitious, high-resolution science.', icon: '⬡' },
+]
+const instruments = [
+  { id: 'camera', name: 'Multispectral imager', tag: 'LAND & WATER', mass: 5, power: 38, cost: 16, value: 32, desc: 'Maps vegetation, coastlines and surface change in several color bands.' },
+  { id: 'thermal', name: 'Thermal mapper', tag: 'HEAT SIGNATURES', mass: 7, power: 52, cost: 21, value: 29, desc: 'Measures surface temperature patterns to study heat and fires.' },
+  { id: 'radar', name: 'Cloud radar', tag: 'ALL-WEATHER', mass: 12, power: 88, cost: 30, value: 38, desc: 'Uses radar pulses to observe through clouds, with higher power demand.' },
+]
+const rockets = [
+  { id: 'swift', name: 'Swift rideshare', mass: 24, cost: 20, comm: 55, desc: 'Lean launch budget • limited payload margin' },
+  { id: 'atlas', name: 'Atlas small launch', mass: 45, cost: 34, comm: 90, desc: 'Balanced capacity • dependable data link' },
+  { id: 'titan', name: 'Titan dedicated', mass: 70, cost: 52, comm: 125, desc: 'Generous capacity • premium cost' },
+]
+const steps = ['Objective', 'Spacecraft', 'Instruments', 'Launch', 'Orbit & duration', 'Review']
+const objectiveNames = { coast: 'Changing coastlines', crops: 'Crop health', fires: 'Heat & wildfires' }
+const money = (n) => `$${n}M`
+
+function calculate(config) {
+  const vehicle = rockets.find((item) => item.id === config.rocket)
+  const bus = craft.find((item) => item.id === config.craft)
+  const selected = instruments.filter((item) => config.instruments.includes(item.id))
+  const orbit = getOrbit(config.orbit)
+  const mass = bus.mass + selected.reduce((sum, item) => sum + item.mass, 0)
+  const power = 24 + selected.reduce((sum, item) => sum + item.power, 0)
+  const budget = bus.cost + vehicle.cost + selected.reduce((sum, item) => sum + item.cost, 0) + 8
+  const data = 18 + selected.reduce((sum, item) => sum + item.value, 0)
+  const limits = { mass: destinationPayloadLimit(vehicle.mass, config.orbit), power: bus.power, budget: 100, data: vehicle.comm }
+  const margins = { mass: limits.mass - mass, power: limits.power - power, budget: limits.budget - budget, data: limits.data - data }
+  return { vehicle, bus, selected, orbit, mass, power, budget, data, limits, margins }
+}
+
+function App() {
+  const [view, setView] = useState('overview')
+  const [step, setStep] = useState(0)
+  const [config, setConfig] = useState({ objective: 'coast', craft: 'pathfinder', instruments: ['camera'], rocket: 'atlas', orbit: 'sso', duration: 12 })
+  const [result, setResult] = useState(null)
+  const [running, setRunning] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [events, setEvents] = useState([])
+  const calc = useMemo(() => calculate(config), [config])
+  const valid = calc.margins.mass >= 0 && calc.margins.power >= 0 && calc.margins.budget >= 0 && calc.margins.data >= 0 && calc.selected.length > 0
+  const readiness = Math.max(0, Math.min(100, Math.round(Math.min(...Object.entries(calc.margins).map(([key, margin]) => margin / calc.limits[key])) * 100)))
+
+  const patchConfig = (key, value) => {
+    setConfig((current) => ({ ...current, [key]: value }))
+    setResult(null)
+    const labels = { objective: 'Mission objective updated', craft: 'Spacecraft configuration changed', instruments: 'Instrument payload updated', rocket: 'Launch vehicle selected', orbit: 'Target orbit changed', duration: 'Mission duration adjusted' }
+    setEvents((current) => [{ id: Date.now(), title: labels[key], detail: key === 'instruments' ? `${value.length} instrument${value.length === 1 ? '' : 's'} selected` : key === 'duration' ? `${value} months planned` : key === 'craft' ? craft.find((item) => item.id === value)?.name : key === 'rocket' ? rockets.find((item) => item.id === value)?.name : key === 'objective' ? objectiveNames[value] : key === 'orbit' ? getOrbit(value).name : '', time: 'JUST NOW' }, ...current].slice(0, 4))
+  }
+
+  const toggleInstrument = (id) => patchConfig('instruments', config.instruments.includes(id) ? config.instruments.filter((item) => item !== id) : [...config.instruments, id])
+
+  const launch = () => {
+    if (running) return
+    setRunning(true)
+    setView('simulation')
+    window.setTimeout(() => {
+      const issues = Object.entries(calc.margins).filter(([, margin]) => margin < 0).map(([key]) => key)
+      const orbitPoints = orbitScienceBonus(config.orbit)
+      const quality = Math.max(0, Math.min(100, Math.round(calc.selected.reduce((sum, item) => sum + item.value, 0) + orbitPoints + Math.min(calc.margins.power, 40) / 2 + (config.duration >= 12 ? 8 : 2))))
+      const outcome = issues.length || !calc.selected.length ? 'MISSION FAILURE' : quality >= 75 && calc.margins.data >= 10 && supportsFullEarthImagingScore(config.orbit) ? 'SUCCESS' : 'PARTIAL SUCCESS'
+      const simulation = { outcome, quality, issues, config: { ...config }, calc }
+      setResult(simulation)
+      setEvents([
+        { id: Date.now(), title: 'Simulation complete', detail: `${outcome} • score ${quality}/100`, time: 'LATEST' },
+        { id: Date.now() + 1, title: 'Data link assessment', detail: `${calc.data} modeled data points / ${calc.limits.data} capacity`, time: 'FLIGHT EVENT' },
+        { id: Date.now() + 2, title: 'Instrument campaign', detail: `${calc.selected.length} instrument${calc.selected.length === 1 ? '' : 's'} checked against power budget`, time: 'FLIGHT EVENT' },
+      ])
+      setRunning(false)
+      setView('debrief')
+    }, 1750)
+  }
+
+  const openBuilder = (nextStep = 0) => { setStep(nextStep); setView('mission'); setMenuOpen(false) }
+  const openSimulation = () => {
+    setMenuOpen(false)
+    if (result) setView('simulation')
+    else if (valid) launch()
+    else openBuilder(5)
+  }
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: '⌂', action: () => setView('overview') },
+    { id: 'explorer', label: 'Game Explorer', icon: '◎', action: () => { setView('explorer'); setMenuOpen(false) } },
+    { id: 'mission', label: 'Build Mission', icon: '⊕', action: () => openBuilder(0) },
+    { id: 'resources', label: 'Resources', icon: '▥', action: () => openBuilder(2) },
+    { id: 'simulation', label: 'Simulation', icon: '▷', action: openSimulation },
+    { id: 'debrief', label: 'Debrief', icon: '▤', action: () => result && setView('debrief'), disabled: !result },
+  ]
+  const activeNav = view === 'mission' ? (step === 2 ? 'resources' : 'mission') : view
+
+  return <div className="app-shell">
+    <header className="topbar">
+      <a className="brand" href="#overview" onClick={(event) => { event.preventDefault(); setView('overview') }}><span className="brand-mark">✳</span><span>SETILLAR <b>TITANS</b><small>MISSION SYSTEMS · V5</small></span></a>
+      <button className="mobile-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation" aria-expanded={menuOpen}>☰</button>
+      <nav className={`primary-nav ${menuOpen ? 'open' : ''}`} aria-label="Main navigation">{navItems.map((item) => <button key={item.id} className={`nav-link ${activeNav === item.id ? 'active' : ''}`} onClick={item.action} disabled={item.disabled}><span>{item.icon}</span>{item.label}{item.id === 'debrief' && result && <i className="nav-new-dot"/>}</button>)}</nav>
+      <div className="profile-area"><span className="systems-pill"><i/> SYSTEMS NOMINAL</span><button className="profile-button" onClick={() => { setProfileOpen(!profileOpen); setMenuOpen(false) }} aria-label="Explorer profile and settings" aria-expanded={profileOpen}><span className="profile-avatar">EX</span><span className="profile-copy"><b>Explorer</b><small>GUEST PILOT</small></span><span className="profile-chevron">⌄</span></button>{profileOpen && <div className="profile-menu"><b>EXPLORER MODE</b><span>Progress stays in this browser session.</span><button onClick={() => { setView('learn'); setProfileOpen(false) }}>SIMULATION ASSUMPTIONS <i>↗</i></button></div>}</div>
+    </header>
+    <main className="main-area">
+      {view === 'overview' && <Dashboard calc={calc} config={config} result={result} events={events} readiness={readiness} valid={valid} running={running} onBuild={() => openBuilder(0)} onResources={() => openBuilder(2)} onLaunch={launch} onDebrief={() => result && setView('debrief')}/>}
+      {view === 'explorer' && <GameExplorer selectedOrbit={config.orbit} onUseOrbit={(orbitId) => { patchConfig('orbit', orbitId); setStep(4); setView('mission'); setMenuOpen(false) }}/ >}
+      {(view === 'mission' || view === 'resources') && <Builder view={view} step={step} setStep={setStep} config={config} calc={calc} valid={valid} running={running} patchConfig={patchConfig} toggleInstrument={toggleInstrument} launch={launch} onOverview={() => setView('overview')}/>}
+      {view === 'simulation' && <SimulationView calc={calc} running={running} result={result} onBack={() => openBuilder(5)} />}
+      {view === 'debrief' && <Debrief result={result} onRetry={() => { setConfig({ objective: 'coast', craft: 'pathfinder', instruments: ['camera'], rocket: 'atlas', orbit: 'sso', duration: 12 }); setStep(0); setResult(null); setEvents([]); setView('mission') }} onEdit={() => openBuilder(0)} />}
+      {view === 'learn' && <Learn onStart={() => openBuilder(0)} />}
+    </main>
+  </div>
+}
+
+function GameExplorer({ selectedOrbit, onUseOrbit }) {
+  return <div className="content explorer-content">
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> LEARNING BAY <span className="eyebrow-muted">/ GAME EXPLORER</span></div><h1>Explore the <em>universe.</em></h1><p>Discover what each orbit can do, then bring your choice into Mission 001.</p></div><div className="heading-meta"><span className="mission-pill"><i/> INTERACTIVE ORBIT LAB</span><div>ILLUSTRATIVE MODEL <b>·</b> NO PROPAGATION</div></div></section>
+    <div className="explorer-note"><span>✳</span><p><b>An orbit is a path around Earth.</b> Its altitude and shape affect how often a satellite passes over places, how much of Earth it can see, and what a mission can observe.</p></div>
+    <OrbitSimulator selectedOrbit={selectedOrbit} onUseOrbit={onUseOrbit}/>
+    <div className="explorer-basics"><article><span>01 / MOTION</span><b>Gravity keeps a satellite in orbit</b><p>Satellites move forward while Earth’s gravity continually bends their path around the planet.</p></article><article><span>02 / TRADE-OFF</span><b>Closer isn’t always better</b><p>Lower orbits can give detailed views, while higher orbits can cover a wider region.</p></article><article><span>03 / MISSION DESIGN</span><b>Match the orbit to the question</b><p>Repeated Earth images often benefit from similar lighting; continuous regional viewing favors a much higher orbit.</p></article></div>
+    <footer className="content-footer"><span>SETILLAR TITANS <b>·</b> AN EDUCATIONAL MISSION DESIGN GAME</span><span>ILLUSTRATIVE ORBITS <b>·</b> NOT FOR FLIGHT DESIGN</span></footer>
+  </div>
+}
+
+function Dashboard({ calc, config, result, events, readiness, valid, running, onBuild, onResources, onLaunch, onDebrief }) {
+  const destination = calc.orbit.name
+  const resourceItems = [
+    { label: 'Total mass', used: calc.mass, limit: calc.limits.mass, unit: 'kg', icon: '◇', margin: calc.margins.mass },
+    { label: 'Electrical power', used: calc.power, limit: calc.limits.power, unit: 'W', icon: 'ϟ', margin: calc.margins.power },
+    { label: 'Mission budget', used: calc.budget, limit: calc.limits.budget, unit: 'M', prefix: '$', icon: '$', margin: calc.margins.budget },
+  ]
+  const telemetry = result ? [
+    { label: 'Mission score', value: result.quality, unit: '/100', percent: result.quality },
+    { label: 'Payload mass', value: result.calc.mass, unit: 'kg', percent: Math.min(100, result.calc.mass / result.calc.limits.mass * 100) },
+    { label: 'Power used', value: result.calc.power, unit: 'W', percent: Math.min(100, result.calc.power / result.calc.limits.power * 100) },
+    { label: 'Data link', value: result.calc.data, unit: 'pts', percent: Math.min(100, result.calc.data / result.calc.limits.data * 100) },
+  ] : []
+  return <div className="content dashboard-content">
+    <section className="dashboard-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> FLIGHT DECK <span className="eyebrow-muted">/ OVERVIEW</span></div><h1>Mission <em>control.</em></h1><p>Your mission at a glance. Design, balance, then discover.</p></div><div className="heading-meta"><span className="mission-pill"><i/>{result ? 'SIMULATION COMPLETE' : 'MISSION IN PREPARATION'}</span><div>EARTH SCIENCE PROGRAM <b>·</b> MISSION 001</div></div></section>
+    <section className="kpi-grid" aria-label="Mission summary">
+      <article className="kpi-card"><span className="kpi-icon">⌖</span><div className="kpi-caption">ACTIVE MISSION</div><strong>001 <small>/ 01</small></strong><div className="kpi-foot"><span className="kpi-status-dot"/> Earth observation</div><span className="kpi-orbit">{calc.orbit.abbr} · {calc.orbit.name.toUpperCase()}</span></article>
+      <article className="kpi-card"><span className="kpi-icon">◉</span><div className="kpi-caption">RESOURCE READINESS</div><strong>{readiness}<small>%</small></strong><div className="kpi-foot"><span className={`kpi-status-dot ${valid ? '' : 'red'}`}/>{valid ? 'All critical limits in range' : 'Constraint warning detected'}</div><span className="kpi-orbit">LOWEST REMAINING MARGIN</span></article>
+      <article className="kpi-card status-kpi"><span className="kpi-icon">⌁</span><div className="kpi-caption">MISSION STATUS</div><strong className={result?.outcome === 'MISSION FAILURE' ? 'status-failure' : ''}>{result ? result.outcome : 'PREPARING'}</strong><div className="kpi-foot"><span className={`kpi-status-dot ${result?.outcome === 'MISSION FAILURE' ? 'red' : ''}`}/>{result ? `Game score ${result.quality}/100` : `${calc.selected.length} instrument${calc.selected.length === 1 ? '' : 's'} configured`}</div><span className="kpi-orbit">{result ? 'LATEST SIMULATION' : 'AWAITING LAUNCH'}</span></article>
+    </section>
+    <section className="dashboard-grid">
+      <article className="dash-card active-mission-card">
+        <div className="card-heading"><div><span className="section-index">MISSION 001 / ACTIVE</span><h2>Earth observation</h2></div><span className={`status-chip ${result ? 'complete' : 'preparing'}`}><i/>{result ? 'COMPLETE' : 'PREPARING'}</span></div>
+        <p className="mission-summary">Design a satellite to collect useful Earth data and return it to the ground.</p>
+        <div className="mission-art"><div className="orbit-ring orbit-one"/><div className="orbit-ring orbit-two"/><div className="earth-globe"><span className="earth-mark">✦</span></div><div className="satellite-mark">◇<i/></div><span className="art-label art-label-top">EARTH / {calc.orbit.abbr}</span><span className="art-label art-label-bottom">ORBITAL PATH · ILLUSTRATIVE</span></div>
+        <div className="mission-facts"><div><span>OBJECTIVE</span><b>{objectiveNames[config.objective]}</b></div><div><span>DESTINATION</span><b>{destination}</b></div><div><span>SPACECRAFT</span><b>{calc.bus.name}</b></div><div><span>PAYLOAD</span><b>{calc.selected.length} instrument{calc.selected.length === 1 ? '' : 's'}</b></div></div>
+        <div className="preparation-line"><span><span className="preparation-dot"/> FLIGHT PLAN {valid ? 'WITHIN MODELED LIMITS' : 'NEEDS REVIEW'}</span><b>{result ? 'SIM COMPLETE' : `${readiness}% MARGIN`}</b></div><div className="prep-meter"><i className={!valid ? 'warning' : ''} style={{ width: `${result ? 100 : readiness}%` }}/></div>
+        <button className="text-action" onClick={onBuild}>OPEN FLIGHT PLAN <span>↗</span></button>
+      </article>
+      <article className="dash-card resource-health-card">
+        <div className="card-heading"><div><span className="section-index">LIVE TELEMETRY / CONFIGURATION</span><h2>Resource health</h2></div><span className="live-tag"><i/> LIVE</span></div><p className="card-subtitle">Calculated from your current spacecraft and payload.</p>
+        <div className="resource-gauges">{resourceItems.map((resource) => <Gauge key={resource.label} {...resource}/>)}</div>
+        <div className={`resource-alert ${valid ? 'clear' : 'warning'}`}><span>{valid ? '✓' : '!'}</span><div><b>{valid ? 'Configuration is within limits' : 'Configuration needs attention'}</b><small>{valid ? `${readiness}% margin remains on the tightest resource` : `${Object.entries(calc.margins).filter(([, margin]) => margin < 0).map(([key]) => key).join(', ') || 'Select at least one instrument'}`}</small></div><button className="icon-action" onClick={onResources} aria-label="Manage mission resources">↗</button></div>
+        <button className="outline-action" onClick={onResources}>MANAGE RESOURCES <span>→</span></button>
+      </article>
+      <article className="dash-card analytics-card">
+        <div className="card-heading"><div><span className="section-index">DETERMINISTIC OUTPUT</span><h2>Mission analytics</h2></div><span className="analytics-id">{result ? 'RUN 001' : 'NO RUN'}</span></div>
+        {result ? <><div className="analytics-outcome"><div className={`outcome-orb ${result.outcome === 'MISSION FAILURE' ? 'failed' : result.outcome === 'PARTIAL SUCCESS' ? 'partial' : ''}`}>{result.outcome === 'SUCCESS' ? '✓' : result.outcome === 'PARTIAL SUCCESS' ? '◐' : '!'}</div><div><span>SIMULATION OUTCOME</span><b>{result.outcome}</b></div><strong>{result.quality}<small>/100</small></strong></div><div className="telemetry-list">{telemetry.map((item) => <div className="telemetry-row" key={item.label}><div><span>{item.label}</span><b>{item.value}<small> {item.unit}</small></b></div><div className="telemetry-meter"><i style={{ width: `${item.percent}%` }}/></div></div>)}</div><p className="sample-note">Values from your latest mission simulation. Score is an educational game score.</p></> : <div className="analytics-empty"><span className="empty-chart">∿</span><b>Telemetry will appear after launch</b><p>Run a simulation to see the mission score and resource utilization from your selected design.</p><span className="empty-label">NO SIMULATION DATA YET</span></div>}
+      </article>
+      <article className="dash-card events-card">
+        <div className="card-heading"><div><span className="section-index">FLIGHT LOG</span><h2>Recent mission events</h2></div><span className="event-count">{events.length.toString().padStart(2, '0')} LOGGED</span></div>
+        {events.length ? <div className="event-list">{events.map((event, index) => <div className="event-row" key={event.id}><span className={`event-marker ${index === 0 ? 'current' : ''}`}>{index === 0 ? '●' : '·'}</span><div><b>{event.title}</b><p>{event.detail}</p></div><small>{event.time}</small></div>)}</div> : <div className="events-empty"><span>⌁</span><p>Mission events will be logged here as you configure and run your flight plan.</p></div>}
+      </article>
+      <article className="dash-card debrief-preview">
+        <div className="card-heading"><div><span className="section-index">MISSION REVIEW</span><h2>Mission debrief</h2></div>{result && <span className="event-count">LATEST RESULT</span>}</div>
+        {result ? <><div className={`debrief-preview-result ${result.outcome === 'MISSION FAILURE' ? 'failed' : ''}`}><span>{result.outcome === 'SUCCESS' ? '✓' : result.outcome === 'PARTIAL SUCCESS' ? '◐' : '!'}</span><div><b>{result.outcome}</b><p>{result.issues.length ? `Constraint violations: ${result.issues.join(', ')}.` : result.outcome === 'PARTIAL SUCCESS' ? 'A non-critical performance target reduced the final result.' : 'All mandatory game constraints were satisfied.'}</p></div></div><button className="text-action" onClick={onDebrief}>VIEW FULL DEBRIEF <span>↗</span></button></> : <div className="events-empty"><span>▤</span><p>Launch the simulation to generate an outcome, score, and lessons learned.</p></div>}
+      </article>
+    </section>
+    <section className="action-strip"><div><span className="section-index">MISSION WORKFLOW</span><b>Ready to shape your mission?</b><small>Build, balance, and test your Earth observation design.</small></div><div className="action-buttons"><button className="btn-primary" onClick={onBuild}>⊕ <span>BUILD MISSION</span></button><button className="btn-outline" onClick={onResources}>▥ <span>MANAGE RESOURCES</span></button><button className="btn-launch" onClick={onLaunch} disabled={running}>{running ? 'SIMULATION RUNNING…' : '▷  LAUNCH SIMULATION'}</button></div></section>
+    <footer className="content-footer"><span>SETILLAR TITANS <b>·</b> AN EDUCATIONAL MISSION DESIGN GAME</span><span>SIMPLIFIED MODEL <b>·</b> NOT FOR FLIGHT DESIGN</span></footer>
+  </div>
+}
+
+function Gauge({ label, used, limit, unit, icon, margin, prefix = '' }) {
+  const percentage = Math.min(100, Math.round(used / limit * 100))
+  const over = margin < 0
+  const near = !over && percentage >= 85
+  return <div className="gauge"><div className="gauge-head"><span className="gauge-label"><i>{icon}</i>{label}</span><span className={`gauge-state ${over ? 'bad' : near ? 'warn' : ''}`}>{over ? 'OVER LIMIT' : near ? 'NEAR LIMIT' : 'ON TRACK'}</span></div><div className="gauge-values"><b>{prefix}{used}<small> {unit}</small></b><span>OF {prefix}{limit}{unit}</span></div><div className="gauge-track"><i className={over ? 'bad' : near ? 'warn' : ''} style={{ width: `${percentage}%` }}/></div><div className="gauge-foot"><span>{over ? `Exceeds by ${prefix}${Math.abs(margin)} ${unit}` : `${prefix}${margin} ${unit} remaining`}</span><span>{percentage}%</span></div></div>
+}
+
+function Builder({ view, step, setStep, config, calc, valid, running, patchConfig, toggleInstrument, launch, onOverview }) {
+  return <div className="content">
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> FLIGHT DECK <span className="eyebrow-muted">/ {view === 'resources' ? 'RESOURCE MANAGEMENT' : 'MISSION BUILDER'}</span></div><h1>{view === 'resources' ? <>Manage your <em>resources.</em></> : <>Build your <em>mission.</em></>}</h1><p>{view === 'resources' ? 'See how each mission choice changes your available capacity.' : 'Design an Earth-observing satellite. Every choice changes what you can discover.'}</p></div><div className="heading-meta"><span className="mission-pill"><i/>{valid ? 'CONFIGURATION READY' : 'CONSTRAINTS TO REVIEW'}</span><div>EDUCATIONAL SCENARIO <b>·</b> v5.0</div></div></section>
+    <section className="stepper" aria-label="Mission configuration steps">{steps.map((name, index) => <button key={name} className={`step ${step === index ? 'current' : ''} ${step > index ? 'done' : ''}`} onClick={() => setStep(index)}><span className="step-num">{step > index ? '✓' : `0${index + 1}`}</span><span>{name}</span></button>)}</section>
+    <div className="workspace"><section className="builder-panel"><div className="panel-head"><div><span className="section-index">STEP 0{step + 1} / 06</span><h2>{['Choose your objective', 'Choose your spacecraft', 'Select your instruments', 'Choose your launch', 'Set your orbit & duration', 'Review your flight plan'][step]}</h2><p>{['What question should your satellite help answer?', 'Your spacecraft bus carries and powers the instruments.', 'Each instrument reveals something different about Earth.', 'Your launch choice sets the payload and data-link limits.', 'Set the mission environment and time available to collect data.', 'Check your configuration and resource margins before launch.'][step]}</p></div><span className="help-mark" title="Game values are educational assumptions">?</span></div>
+      {step === 0 && <div className="objective-grid">{[{ id: 'coast', icon: '⌁', title: 'Changing coastlines', desc: 'Track erosion, floods and coastal change over time.', stat: 'LAND & WATER' }, { id: 'crops', icon: '✳', title: 'Crop health', desc: 'Observe vegetation patterns and seasonal growth.', stat: 'VEGETATION' }, { id: 'fires', icon: '◉', title: 'Heat & wildfires', desc: 'Locate unusual heat signatures across the surface.', stat: 'THERMAL' }].map((item) => <button key={item.id} className={`objective-card ${config.objective === item.id ? 'selected' : ''}`} onClick={() => patchConfig('objective', item.id)}><span className="obj-icon">{item.icon}</span><span className="select-check">{config.objective === item.id ? '✓' : ''}</span><strong>{item.title}</strong><span className="obj-desc">{item.desc}</span><span className="obj-stat">{item.stat} <b>↗</b></span></button>)}</div>}
+      {step === 1 && <div className="choice-list">{craft.map((item) => <button key={item.id} className={`choice-row ${config.craft === item.id ? 'selected' : ''}`} onClick={() => patchConfig('craft', item.id)}><span className="choice-icon">{item.icon}</span><span className="choice-copy"><strong>{item.name}</strong><small>{item.type} — {item.description}</small></span><span className="choice-spec">{item.mass} kg <small>DRY MASS</small></span><span className="choice-spec">{item.power} W <small>POWER</small></span><span className={`radio ${config.craft === item.id ? 'checked' : ''}`}/></button>)}</div>}
+      {step === 2 && <div className="instrument-grid">{instruments.map((item) => <button key={item.id} className={`instrument-card ${config.instruments.includes(item.id) ? 'selected' : ''}`} onClick={() => toggleInstrument(item.id)}><div className="instrument-top"><span className="instrument-icon">{item.id === 'camera' ? '▧' : item.id === 'thermal' ? '◉' : '⌁'}</span><span className={`checkbox ${config.instruments.includes(item.id) ? 'checked' : ''}`}>{config.instruments.includes(item.id) ? '✓' : ''}</span></div><span className="instrument-tag">{item.tag}</span><strong>{item.name}</strong><p>{item.desc}</p><div className="instrument-spec"><span>{item.mass} kg <small>MASS</small></span><span>{item.power} W <small>DEMAND</small></span><span>{money(item.cost)} <small>COST</small></span></div></button>)}</div>}
+      {step === 3 && <div className="choice-list">{rockets.map((item) => <button key={item.id} className={`choice-row rocket-row ${config.rocket === item.id ? 'selected' : ''}`} onClick={() => patchConfig('rocket', item.id)}><span className="choice-icon">↗</span><span className="choice-copy"><strong>{item.name}</strong><small>{item.desc}</small></span><span className="choice-spec">{item.mass} kg <small>PAYLOAD LIMIT</small></span><span className="choice-spec">{item.comm} <small>DATA CAPACITY</small></span><span className={`radio ${config.rocket === item.id ? 'checked' : ''}`}>{config.rocket === item.id ? '✓' : ''}</span></button>)}</div>}
+      {step === 4 && <div className="parameters"><div className="parameter-block"><span className="instrument-tag">TARGET ORBIT</span><h3>Where will it observe?</h3><div className="builder-orbit-options">{orbitOrder.map((id) => { const orbit = getOrbit(id); return <button key={id} className={`builder-orbit-option ${config.orbit === id ? 'selected' : ''}`} onClick={() => patchConfig('orbit', id)} aria-pressed={config.orbit === id}><span className="builder-orbit-top"><b>{orbit.abbr}</b><span>{config.orbit === id ? '✓' : '○'}</span></span><strong>{orbit.name}</strong><small>{orbit.altitude}</small><small>{orbit.missionFit}</small></button> })}</div><p className="orbit-limit-note">Launch capacity includes a simplified destination factor. All values are game-design assumptions.</p></div><div className="parameter-block duration-block"><div><span className="instrument-tag">MISSION DURATION</span><h3>{config.duration} months</h3><p>Longer missions allow more observations but need reliable systems.</p></div><input aria-label="Mission duration in months" type="range" min="6" max="24" step="3" value={config.duration} onChange={(event) => patchConfig('duration', Number(event.target.value))}/><div className="range-labels"><span>6 MONTHS</span><span>24 MONTHS</span></div></div></div>}
+      {step === 5 && <div className="review"><div className="review-row"><span>MISSION OBJECTIVE</span><strong>{objectiveNames[config.objective]}</strong><button onClick={() => setStep(0)}>EDIT</button></div><div className="review-row"><span>SPACECRAFT</span><strong>{calc.bus.name}</strong><button onClick={() => setStep(1)}>EDIT</button></div><div className="review-row"><span>INSTRUMENTS</span><strong>{calc.selected.length ? calc.selected.map((item) => item.name).join(' · ') : 'None selected'}</strong><button onClick={() => setStep(2)}>EDIT</button></div><div className="review-row"><span>LAUNCH / ORBIT</span><strong>{calc.vehicle.name} · {calc.orbit.name}</strong><button onClick={() => setStep(3)}>EDIT</button></div><div className="review-row"><span>MISSION DURATION</span><strong>{config.duration} months</strong><button onClick={() => setStep(4)}>EDIT</button></div><div className={`review-readiness ${valid ? '' : 'warning'}`}><span>{valid ? '✓' : '!'}</span><div><strong>{valid ? 'Flight plan is within modeled limits' : 'Review the constraints before launch'}</strong><small>{valid ? 'All required selections are made and resources fit the game scenario.' : 'Resolve each warning in the resource panel to improve mission readiness.'}</small></div></div></div>}
+      <div className="builder-foot"><span><span className="lock-icon">⌑</span> YOUR FLIGHT PLAN SAVES AUTOMATICALLY</span><div>{step > 0 && <button className="btn-secondary" onClick={() => setStep(step - 1)}>← BACK</button>}{step < 5 ? <button className="btn-primary" onClick={() => setStep(step + 1)}>CONTINUE <span>→</span></button> : <button className="btn-primary launch-btn" onClick={launch} disabled={running}>{running ? <><span className="spinner"/> INITIALIZING…</> : <> <span>↗</span> LAUNCH SIMULATION</>}</button>}</div></div>
+    </section><aside className="resources-panel"><div className="resource-header"><div><span className="section-index">LIVE TELEMETRY</span><h2>Mission resources</h2></div><span className="live-tag"><i/> LIVE</span></div><p className="resource-intro">Updates as you shape your spacecraft.</p><Resource label="MASS" used={calc.mass} limit={calc.limits.mass} unit="kg" icon="◇" margin={calc.margins.mass}/><Resource label="POWER" used={calc.power} limit={calc.limits.power} unit="W" icon="ϟ" margin={calc.margins.power}/><Resource label="BUDGET" used={calc.budget} limit={calc.limits.budget} unit="M" prefix="$" icon="$" margin={calc.margins.budget}/><Resource label="DATA LINK" used={calc.data} limit={calc.limits.data} unit="pts" icon="⌁" margin={calc.margins.data}/><div className="resource-divider"/><div className="mission-readiness"><div className="readiness-orb">{valid ? '✓' : '!'}</div><div><strong>{valid ? 'Within limits' : 'Needs attention'}</strong><span>{valid ? 'Configuration is launchable' : 'One or more limits exceeded'}</span></div><span className={valid ? 'ready-pill' : 'alert-pill'}>{valid ? 'READY' : 'CHECK'}</span></div>{!valid && <div className="constraint-list">{calc.margins.mass < 0 && <span>Mass exceeds launch capacity by {Math.abs(calc.margins.mass)} kg</span>}{calc.margins.power < 0 && <span>Power demand exceeds generation by {Math.abs(calc.margins.power)} W</span>}{calc.margins.budget < 0 && <span>Budget exceeds $100M by ${Math.abs(calc.margins.budget)}M</span>}{calc.margins.data < 0 && <span>Data needs exceed link capacity</span>}{!calc.selected.length && <span>Select at least one instrument</span>}</div>}<div className="assumption-note"><span>ⓘ</span><p><b>Learning simulation</b><br/>All resource values are game-design assumptions. Real mission requirements vary by design.</p></div></aside></div>
+    <footer className="content-footer"><span>SETILLAR TITANS <b>·</b> AN EDUCATIONAL MISSION DESIGN GAME</span><span>SIMPLIFIED MODEL <b>·</b> NOT FOR FLIGHT DESIGN</span></footer>
+    <button className="back-overview" onClick={onOverview}>← BACK TO OVERVIEW</button>
+  </div>
+}
+
+function Resource({ label, used, limit, unit, icon, margin, prefix = '' }) {
+  const percentage = Math.min(100, Math.round(used / limit * 100))
+  const over = margin < 0
+  const near = !over && percentage >= 85
+  return <div className="resource"><div className="resource-top"><div className="resource-name"><span>{icon}</span>{label}</div><span className={`resource-state ${over ? 'bad' : near ? 'warn' : ''}`}>{over ? 'OVER LIMIT' : near ? 'NEAR LIMIT' : 'ON TRACK'}</span></div><div className="resource-numbers"><strong>{prefix}{used}<small> {unit}</small></strong><span>OF {prefix}{limit}{unit}</span></div><div className="meter"><i className={over ? 'bad' : near ? 'warn' : ''} style={{ width: `${percentage}%` }}/></div><div className="resource-bottom"><span>{over ? `Exceeds by ${prefix}${Math.abs(margin)} ${unit}` : `${prefix}${margin} ${unit} remaining`}</span><span>{percentage}%</span></div></div>
+}
+
+function SimulationView({ calc, running, result, onBack }) {
+  return <div className="content simulation-content"><section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> FLIGHT DECK <span className="eyebrow-muted">/ SIMULATION</span></div><h1>Mission <em>simulation.</em></h1><p>Rule-based educational simulation using the current flight plan.</p></div></section><div className="simulation-panel"><div className={`simulation-signal ${running ? 'running' : ''}`}>✳</div><span className="section-index">{running ? 'SIMULATION IN PROGRESS' : result ? 'SIMULATION COMPLETE' : 'READY FOR LAUNCH'}</span><h2>{running ? 'Checking mission systems…' : result ? result.outcome : 'Your flight plan is ready'}</h2><p>{running ? 'Evaluating deployment, power, science collection and data return.' : result ? `Latest score: ${result.quality}/100. ${result.calc.orbit.abbr} was included in the mission suitability rule.` : `${calc.bus.name} · ${calc.selected.length} instrument${calc.selected.length === 1 ? '' : 's'} · ${calc.vehicle.name} · ${calc.orbit.name}`}</p><div className="sim-orbit-callout"><span>{calc.orbit.abbr}</span><div><b>{calc.orbit.name}</b><small>{calc.orbit.altitude} · representative period: {calc.orbit.period}</small></div><em>{calc.orbit.missionFit}</em></div><div className="sim-stage-list">{['Launch & deployment', 'Orbit insertion & suitability', 'Instrument checkout & collection', 'Downlink & science return'].map((stage, index) => <div className={`${running && index === 0 ? 'stage-active' : result ? 'stage-done' : ''}`} key={stage}><span>{result || running && index === 0 ? '✓' : `0${index + 1}`}</span>{stage}</div>)}</div><button className="btn-secondary" onClick={onBack}>← REVIEW FLIGHT PLAN</button></div></div>
+}
+
+function Debrief({ result, onRetry, onEdit }) {
+  if (!result) return <div className="content"><div className="empty-state"><h2>No mission data yet</h2><button className="btn-primary" onClick={onEdit}>BUILD A MISSION →</button></div></div>
+  const success = result.outcome === 'SUCCESS'
+  const partial = result.outcome === 'PARTIAL SUCCESS'
+  const calc = result.calc
+  const reasons = result.issues.length ? result.issues.map((key) => `${key} exceeds the modeled limit`) : partial ? [`${calc.orbit.abbr} has limited suitability for detailed Earth imaging in this simplified mission model`, 'Orbit suitability or data-link performance kept the mission below the full-success threshold'] : ['Mass, electrical power, budget, and data-link checks passed', 'The selected instrument and orbit returned modeled science value']
+  return <div className="content debrief-content"><section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> FLIGHT REVIEW <span className="eyebrow-muted">/ MISSION 001</span></div><h1>Mission <em>debrief.</em></h1><p>Here’s what your decisions made possible—and what you learned.</p></div><div className="heading-meta"><span className="mission-pill"><i/> SIMULATION COMPLETE</span><div>DETERMINISTIC SCENARIO <b>·</b> RUN 001</div></div></section>
+    <section className={`outcome-banner ${success ? 'success' : partial ? 'partial' : 'failed'}`}><div className="outcome-icon">{success ? '✓' : partial ? '◐' : '!'}</div><div><span className="section-index">MISSION ASSESSMENT</span><h2>{result.outcome}</h2><p>{success ? 'Your satellite collected and returned useful observations within all modeled constraints.' : partial ? 'Your satellite completed some science goals, but a performance target limited the final result.' : `A critical modeled constraint prevented reliable mission operations (${result.issues.join(', ')}).`}</p></div><div className="score-ring" style={{ '--score': `${result.quality}%` }}><div><b>{result.quality}</b><small>GAME SCORE</small></div></div></section>
+    <div className="debrief-grid"><section className="panel-card"><div className="debrief-panel-head"><div><span className="section-index">01 / FLIGHT PLAN</span><h3>What you designed</h3></div><button className="text-button" onClick={onEdit}>EDIT PLAN ↗</button></div><div className="debrief-facts"><div><span>SPACECRAFT</span><b>{calc.bus.name}</b></div><div><span>INSTRUMENTS</span><b>{calc.selected.map((item) => item.name).join(', ') || 'None selected'}</b></div><div><span>LAUNCH VEHICLE</span><b>{calc.vehicle.name}</b></div><div><span>ORBIT</span><b>{calc.orbit.name}</b></div><div><span>MISSION LENGTH</span><b>{result.config.duration} months</b></div></div></section>
+      <section className="panel-card"><div className="debrief-panel-head"><div><span className="section-index">02 / SCORE REASONS</span><h3>Why this result?</h3></div></div><ul className="reason-list">{reasons.map((reason) => <li key={reason}><span>{success ? '✓' : '!'}</span>{reason}</li>)}</ul></section>
+      <section className="panel-card"><div className="debrief-panel-head"><div><span className="section-index">03 / RESOURCE REVIEW</span><h3>Engineering trade-offs</h3></div></div><div className="review-bars">{[['Mass', calc.mass, calc.limits.mass, 'kg'], ['Power', calc.power, calc.limits.power, 'W'], ['Budget', calc.budget, calc.limits.budget, 'M'], ['Data link', calc.data, calc.limits.data, 'pts']].map(([name, used, limit, unit]) => <div className="review-bar" key={name}><div><span>{name}</span><b>{used} / {limit} {unit}</b></div><div className="meter"><i className={used > limit ? 'bad' : ''} style={{ width: `${Math.min(100, used / limit * 100)}%` }}/></div></div>)}</div></section>
+      <section className="panel-card"><div className="debrief-panel-head"><div><span className="section-index">04 / FLIGHT LOG</span><h3>Simulation checks</h3></div><span className="deterministic-tag">RULE-BASED</span></div><div className="timeline">{[{ title: 'Launch & deployment', text: `Payload mass ${calc.mass} kg against ${calc.limits.mass} kg destination-adjusted capacity.`, ok: calc.margins.mass >= 0 }, { title: 'Orbit insertion & mission fit', text: `${calc.orbit.name}: ${calc.orbit.missionFit}`, ok: calc.orbit.suitability >= 15 }, { title: 'Power-up & instrument checkout', text: `${calc.power} W demand against ${calc.limits.power} W generation.`, ok: calc.margins.power >= 0 }, { title: 'Data return', text: `${calc.data} modeled points against ${calc.limits.data} point capacity.`, ok: calc.margins.data >= 0 }].map((event) => <div className="timeline-item" key={event.title}><span className={`timeline-dot ${event.ok ? '' : 'miss'}`}>{event.ok ? '✓' : '!'}</span><div><b>{event.title}</b><span>{event.text}</span></div><small>{event.ok ? 'PASS' : 'LIMITED'}</small></div>)}</div></section>
+      <section className="learning-callout full-card"><span className="bulb">✳</span><div><span className="section-index">ENGINEERING TAKEAWAY</span><h3>{success ? 'A balanced design leaves room to operate.' : 'Trade-offs connect every subsystem.'}</h3><p>{success ? 'Your design kept the modeled resources inside their limits. Real missions also account for uncertainty, redundancy, environment and many more constraints.' : 'Adding a capable instrument also adds mass, power demand, cost and data. Try another spacecraft or launch vehicle, or remove an instrument to regain margin.'}</p></div></section></div>
+    <div className="debrief-actions"><button className="btn-secondary" onClick={onEdit}>← EDIT FLIGHT PLAN</button><button className="btn-primary" onClick={onRetry}>↻ TRY AGAIN</button></div><footer className="content-footer"><span>SETILLAR TITANS <b>·</b> AN EDUCATIONAL MISSION DESIGN GAME</span><span>SIMPLIFIED MODEL <b>·</b> NOT FOR FLIGHT DESIGN</span></footer></div>
+}
+
+function Learn({ onStart }) {
+  return <div className="content"><section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-line"/> FIELD GUIDE <span className="eyebrow-muted">/ FIRST FLIGHT</span></div><h1>Space, <em>made simple.</em></h1><p>A quick guide to the choices behind an Earth-observation mission.</p></div></section><div className="learn-grid">{[{ n: '01', title: 'Mission objective', text: 'Start with a question. What should a satellite help us observe: crops, coastlines or heat? Your objective guides which instruments make sense.' }, { n: '02', title: 'Spacecraft & mass', text: 'The spacecraft is the platform that carries your instruments. Mass is how much matter the whole payload has. A launch vehicle has a mass limit.' }, { n: '03', title: 'Electrical power', text: 'Instruments need electricity to work. The spacecraft generates a limited amount of power, so choose a combination that fits.' }, { n: '04', title: 'Budget', text: 'Every spacecraft, instrument and launch option uses part of the mission budget. You will need to balance science capability and cost.' }, { n: '05', title: 'Orbit & communications', text: 'Orbit is the path around Earth. It affects where and when a satellite can observe. A communication link brings collected data back to Earth.' }, { n: '06', title: 'Simulation & score', text: 'The simulator checks your design against simplified game rules. The score is for learning and is not a real mission-performance rating.' }].map((item) => <article className="learn-card" key={item.n}><span>{item.n} / FIELD NOTE</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div><section className="references"><div><span className="section-index">SCIENTIFIC CONTEXT</span><h2>Curiosity, grounded in real science.</h2><p>This game simplifies mission-design trade-offs for learning. Numbers are balancing assumptions created for this game, not NASA specifications or predictions.</p><div className="reference-links"><a href="https://science.nasa.gov/earth/" target="_blank" rel="noreferrer">NASA Earth Science ↗</a><a href="https://www.nasa.gov/reference/systems-engineering-handbook/" target="_blank" rel="noreferrer">NASA Systems Engineering Handbook ↗</a></div></div><button className="btn-primary" onClick={onStart}>START A MISSION →</button></section></div>
+}
+
+export default App

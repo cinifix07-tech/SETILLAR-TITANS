@@ -1,0 +1,7 @@
+{
+  "delayMilliseconds": 1750,
+  "criticalResources": ["mass", "power", "budget", "data"],
+  "minimumInstrumentCount": 1,
+  "minimumDataMarginForFullSuccess": 10,
+  "outcomes": ["SUCCESS", "PARTIAL SUCCESS", "MISSION FAILURE"]
+}

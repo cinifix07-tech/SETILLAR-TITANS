@@ -1,0 +1,8 @@
+{
+  "maxScore": 100,
+  "orbitSuitabilityPoints": 22,
+  "powerMarginPointsCap": 20,
+  "durationAtLeast12MonthsPoints": 8,
+  "shorterDurationPoints": 2,
+  "fullSuccessThreshold": 75
+}
