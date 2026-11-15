@@ -1,0 +1,32 @@
+[
+  {
+    "id": "camera",
+    "name": "Multispectral imager",
+    "tag": "LAND & WATER",
+    "mass": 5,
+    "power": 38,
+    "cost": 16,
+    "value": 32,
+    "desc": "Maps vegetation, coastlines and surface change in several color bands."
+  },
+  {
+    "id": "thermal",
+    "name": "Thermal mapper",
+    "tag": "HEAT SIGNATURES",
+    "mass": 7,
+    "power": 52,
+    "cost": 21,
+    "value": 29,
+    "desc": "Measures surface temperature patterns to study heat and fires."
+  },
+  {
+    "id": "radar",
+    "name": "Cloud radar",
+    "tag": "ALL-WEATHER",
+    "mass": 12,
+    "power": 88,
+    "cost": 30,
+    "value": 38,
+    "desc": "Uses radar pulses to observe through clouds, with higher power demand."
+  }
+]

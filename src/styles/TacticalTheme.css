@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #070706;
+  --panel: #11120f;
+  --panel2: #191a15;
+  --line: #37372d;
+  --text: #f4f4f2;
+  --muted: #aaa99f;
+  --cyan: #f2a93b;
+  --blue: #e04826;
+  --mono: 'JetBrains Mono', monospace;
+  --heading: 'Anton', Impact, sans-serif;
+  --tactical: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  color-scheme: dark;
+}
+
+html, body { background: #070706; color: #f4f4f2; font-family: var(--tactical); }
+body {
+  background:
+    radial-gradient(ellipse at 68% 36%, rgba(29,30,24,.82), transparent 52%),
+    radial-gradient(ellipse at 18% 20%, rgba(28,29,23,.55), transparent 48%),
+    radial-gradient(ellipse at 84% 88%, rgba(24,25,20,.56), transparent 52%),
+    #070706;
+  font-size: 14px;
+}
+#root { position: relative; isolation: isolate; }
+#root::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .42;
+  background-image:
+    repeating-linear-gradient(to bottom, rgba(255,255,255,.013) 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse at 52% 45%, transparent 15%, rgba(18,19,14,.3) 70%, rgba(0,0,0,.5));
+}
+button, input, select, textarea { font-family: var(--tactical); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #f2a93b; outline-offset: 3px; }
+h1, h2, h3, h4, .game-title h1, .page-heading h1, .hub-copy h1, .hub-section-title h2, .hub-modal h2 { font-family: var(--heading)!important; font-weight: 400!important; text-transform: uppercase; letter-spacing: .025em!important; }
+p, label, .field, .resource-intro, .hub-copy>p, .game-card p, .panel-head p { font-family: var(--tactical); }
+small, code, kbd, .eyebrow, .luc-eyebrow, [class*="mono"], [class*="Mono"] { font-family: var(--mono); }
+
+/* Shared card, control, and data language across every app surface. */
+.game-shell, .sidebar-workspace, .main-area, .app-shell, .hub-page, .player-hub, .lucerne { background: transparent!important; }
+.game-shell { color: #f4f4f2; background: transparent!important; }
+.mission-sidebar, .sidebar, .hub-topbar, .topbar, .game-topbar {
+  color: #f4f4f2; background: rgba(10,10,8,.94)!important; border-color: #38372c!important;
+  backdrop-filter: blur(14px);
+}
+.mission-sidebar, .sidebar { box-shadow: inset -1px 0 rgba(242,169,59,.1); }
+.sidebar-brand, .brand, .game-brand { font-family: var(--tactical)!important; font-weight: 700!important; letter-spacing: .1em!important; text-transform: uppercase; }
+.brand-emblem, .brand-mark, .avatar, .top-avatar { border-radius: 2px!important; background: #1b1b15!important; color: #f2a93b!important; border-color: #72562e!important; }
+.sidebar-link, .nav-item, .game-nav button { color: #bab9af!important; border-radius: 2px!important; font-family: var(--tactical)!important; font-size: 14px!important; letter-spacing: .03em; text-transform: uppercase; }
+.sidebar-link:hover, .nav-item:hover, .game-nav button:hover { color: #fff!important; background: rgba(242,169,59,.08)!important; }
+.sidebar-link.selected, .nav-item.active, .game-nav button.selected {
+  color: #f2a93b!important; background: rgba(242,169,59,.08)!important;
+  box-shadow: inset 0 -2px 0 #e04826, inset 0 -3px 0 #f2a93b!important;
+}
+.sidebar-link.selected svg, .nav-item.active>span { color: #f2a93b!important; }
+.game-topbar, .topbar { border-bottom-color: #3a382c!important; }
+.topbar-crumb, .breadcrumb, .commander-badge, .network, .mission-id { color: #aaa99f!important; }
+.topbar-crumb strong, .breadcrumb b { color: #f2a93b!important; }
+.game-main, .content { color: #f4f4f2; }
+.game-eyebrow, .step-label, .eyebrow, .luc-eyebrow, .hub-eyebrow, .tag-cyan { color: #f2a93b!important; letter-spacing: .14em!important; text-transform: uppercase; }
+.game-title h1, .page-heading h1, .game-title h1 em, .page-heading h1 em { color: #f4f4f2!important; }
+.game-title p, .page-heading p, .muted-copy, .game-card p { color: #c5c4bb!important; }
+.game-card, .panel-card, .builder-panel, .resources-panel, .dash-card, .kpi-card, .hub-saves, .hub-profile, .hub-shortcut, .hub-modal, .hub-member-fields, .luc-focus-card {
+  background: linear-gradient(145deg, rgba(23,24,19,.96), rgba(11,11,9,.97))!important;
+  border: 1px solid rgba(242,169,59,.23)!important; border-radius: 3px!important;
+  box-shadow: 0 14px 36px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.025)!important;
+}
+.game-card h2, .panel-head h2, .resource-header h2, .hub-section-title h2 { color: #f4f4f2!important; }
+.objective-card, .instrument-card, .choice-row, .orbit-option, .pipeline-card, .destination-card, .instrument-choice,
+.hub-access-list>button, .hub-roster-member, .hub-empty, .hub-profile, .hub-shortcut, .luc-sponsor {
+  border-radius: 3px!important; background-color: rgba(22,23,18,.94)!important; border-color: #424034!important;
+}
+.objective-card:hover, .instrument-card:hover, .choice-row:hover, .orbit-option:hover, .pipeline-card:hover,
+.hub-shortcut:hover, .hub-access-list>button:hover { border-color: #f2a93b!important; background: rgba(48,38,21,.72)!important; }
+.objective-card.selected, .instrument-card.selected, .choice-row.selected, .orbit-option.selected, .destination-card.chosen {
+  border-color: #f2a93b!important; background: rgba(57,42,19,.68)!important;
+  box-shadow: inset 0 0 0 1px rgba(242,169,59,.25), 0 0 18px rgba(242,169,59,.08)!important;
+}
+.obj-icon, .choice-icon, .hub-avatar, .hub-shortcut>span, .destination-art { background-color: #1d1e17!important; color: #f2a93b!important; border-color: #51432c!important; }
+.game-button, .btn-primary, .hub-primary, .hub-submit, .luc-cta {
+  min-height: 38px; border: 1px solid #e59a38!important; border-radius: 2px!important;
+  background: linear-gradient(110deg,#e04826,#9f321e)!important; color: #fff4e2!important;
+  font-family: var(--tactical)!important; font-size: 14px!important; font-weight: 700!important;
+  letter-spacing: .075em!important; text-transform: uppercase;
+  box-shadow: 0 0 16px rgba(220,55,30,.12);
+}
+.game-button:hover, .btn-primary:hover, .hub-primary:hover, .hub-submit:hover, .luc-cta:hover { filter: brightness(1.12); box-shadow: 0 0 19px rgba(242,169,59,.22); }
+.game-button.secondary, .btn-secondary, .hub-secondary, .hub-signin, .hub-profile>button, .hub-orbit-select button, .hub-orbit-actions button {
+  border: 1px solid #5a4b31!important; border-radius: 2px!important; background: #171813!important; color: #e6c991!important;
+  font-family: var(--tactical)!important; font-weight: 600!important; letter-spacing: .05em; text-transform: uppercase;
+}
+.game-button.text-button { color: #f2a93b!important; }
+.stepper { border: 1px solid #464235!important; border-radius: 3px!important; background: #11120f!important; }
+.step { border-radius: 2px!important; color: #aaa99f!important; font-family: var(--tactical)!important; text-transform: uppercase; letter-spacing: .07em; }
+.step.current { color: #f2a93b!important; background: #242016!important; box-shadow: inset 0 -2px #e04826,inset 0 -3px #f2a93b; }
+.step.done { color: #e4b35c!important; }
+.field input:not([type=range]), .field select, .hub-modal input, .hub-modal select, input, select, textarea {
+  background: #0b0c09!important; border: 1px solid #514d3d!important; border-radius: 2px!important; color: #f4f4f2!important;
+}
+.field input:focus, .field select:focus, .hub-modal input:focus, .hub-modal select:focus, input:focus, select:focus, textarea:focus { border-color: #f2a93b!important; box-shadow: 0 0 0 2px rgba(242,169,59,.15)!important; }
+input[type=range], input[type=checkbox], input[type=radio] { accent-color: #f2a93b!important; }
+.meter-track, .meter, .mini-progress, .sim-track { background: #28271f!important; border-radius: 1px!important; }
+.meter-track i, .mini-progress i, .sim-track i { background: linear-gradient(90deg,#e04826,#f2a93b)!important; border-radius: 1px!important; }
+.live-dot, .mission-pill i, .live-tag i, .network i, .commander-badge i, .sim-status i, .commander-dot { background: #f2a93b!important; box-shadow: 0 0 9px rgba(242,169,59,.62)!important; }
+.mission-pill, .live-tag, .ready-pill, .alert-pill, .state-ok, .state-warn { border-radius: 2px!important; border-color: #6f532e!important; background: rgba(242,169,59,.08)!important; color: #efc16f!important; }
+.record-row, .resource, .builder-section, .content-footer, .game-footer { border-color: rgba(242,169,59,.16)!important; }
+.game-footer, .content-footer, .hub-footer { color: #817c6d!important; font-family: var(--mono)!important; letter-spacing: .07em; }
+.dashboard-heading h1, .dash-card h2, .kpi-card>strong { color:#f4f4f2!important; }
+.dashboard-content, .dashboard-heading p, .kpi-caption, .kpi-foot { color:#c5c4bb!important; }
+.dashboard-grid, .dash-card, .analytics-card, .active-mission-card, .resource-health-card, .events-card, .debrief-preview {
+  border-color:rgba(242,169,59,.2)!important; border-radius:3px!important;
+}
+.kpi-icon, .mission-art, .analytics-empty, .events-empty { border-radius:2px!important; }
+.action-strip { background:linear-gradient(105deg,#1a1913,#11120f 65%,#21180f)!important; border-color:rgba(242,169,59,.3)!important; border-radius:3px!important; }
+.action-buttons .btn-primary, .action-buttons .btn-launch { background:linear-gradient(110deg,#e04826,#9f321e)!important; border-color:#e59a38!important; color:#fff4e2!important; }
+.action-buttons .btn-outline { background:#171813!important; border-color:#5a4b31!important; color:#e6c991!important; }
+.objective-card strong, .instrument-card strong, .choice-copy strong, .event-row b, .kpi-card>strong { color:#f4f4f2!important; }
+.obj-desc, .pipeline-card small, .resource-intro, .resource-bottom, .event-row p { color:#c1beb2!important; }
+.resource-name, .builder-resource-card .resource-name, .resource-name>span, .resource-numbers>span { color:#e4bd6c!important; }
+.resource-state, .status-ok, .state-ok, .ready-pill { color:#e4bd6c!important; }
+.lock-icon, .select-check, .obj-stat, .obj-icon { color:#f2a93b!important; }
+.constraint-list, .validation-list p, .builder-resource-warnings { background:rgba(89,37,22,.32)!important; color:#ffad8d!important; }
+.assumption-note, .challenge-box, .discovery-list span, .record-row, .mission-readiness, .builder-review-status {
+  background:rgba(29,29,22,.8)!important; border-color:rgba(242,169,59,.2)!important; border-radius:3px!important;
+}
+.sim-visual, .mission-visual, .showcase-stage, .hub-orbit-visual, .orbit-scene-frame {
+  border-radius:3px!important; border-color:rgba(242,169,59,.24)!important;
+}
+.orbit-explorer-title h2 { font-family:var(--heading)!important; text-transform:uppercase; }
+.orbit-model-tag, .orbit-scene-label, .orbit-scene-hint, .orbit-controls, .orbit-info-panel,
+.orbit-selector-card, .orbit-confirmation, .orbit-disclaimer, .orbit-science-note {
+  border-radius:3px!important; border-color:rgba(242,169,59,.24)!important;
+  background-color:rgba(18,19,15,.94)!important;
+}
+.orbit-model-tag, .orbit-selector-card b, .orbit-scene-label svg, .orbit-scene-hint span,
+.orbit-control-primary svg, .orbit-icon-control svg, .orbit-speed-control button.active,
+.orbit-selector-card.selected, .orbit-info-title>span { color:#f2a93b!important; }
+.orbit-selector-card.selected, .orbit-speed-control button.active, .orbit-control-primary {
+  border-color:#e59a38!important; background:#332619!important;
+}
+.orbit-control-primary, .orbit-icon-control, .orbit-speed-control button, .orbit-use-button {
+  border-radius:2px!important; border-color:#57452b!important; background:#171813!important; color:#e7c98d!important;
+}
+.orbit-scene-frame, .orbit-static { background:radial-gradient(ellipse at 50% 40%,#29251a,#080807 73%)!important; }
+.orbit-mini-icon, .orbit-mini-icon:after { border-color:#d59a40!important; }
+.orbit-info-block, .orbit-info-title { border-color:rgba(242,169,59,.16)!important; }
+.orbit-science-note { border-left-color:#e04826!important; color:#e4d2a8!important; }
+.orbit-selector-card:hover, .orbit-selector-card.selected, .orbit-control-primary:hover, .orbit-icon-control:hover,
+.orbit-speed-control button:hover, .orbit-use-button:hover { border-color:#f2a93b!important; color:#ffe0a0!important; }
+.builder-progress, .builder-stepper, .builder-step, .builder-step-copy, .builder-step-state,
+.builder-review, .builder-review-status, .builder-payload-choice, .builder-orbit-option,
+.builder-selected-mission, .spacecraft-showcase, .builder-resource-card {
+  border-radius:3px!important; border-color:rgba(242,169,59,.22)!important;
+}
+.builder-progress, .builder-stepper, .builder-selected-mission, .builder-payload-choice,
+.builder-orbit-option, .builder-review-status, .builder-resource-card { background-color:rgba(17,18,15,.96)!important; }
+.builder-step.active, .builder-step[aria-current="step"], .builder-payload-choice.selected,
+.builder-orbit-option.selected, .builder-selected-mission { border-color:#e59a38!important; }
+.builder-progress-track, .builder-progress-track i, .payload-checkbox { border-radius:1px!important; }
+.builder-progress-track i, .builder-payload-choice.selected .payload-checkbox { background:#e04826!important; border-color:#f2a93b!important; }
+.builder-flow-footer, .builder-stepper { border-color:rgba(242,169,59,.17)!important; }
+.showcase-stage { background:radial-gradient(ellipse at 45% 46%,#28251b,#080807 74%)!important; }
+.destination-content h2, .orbit-info-title h3 { font-family:var(--heading)!important; text-transform:uppercase; }
+.destination-meta, .destination-metrics, .builder-orbit-top, .builder-review-status b { color:#f2a93b!important; }
+.destination-art, .destination-art.mars, .destination-art.europa { filter:sepia(.28) saturate(.82); }
+.sim-status.live, .showcase-live, .showcase-chip, .showcase-specs b { color:#e6bc68!important; }
+.sim-track i { background:linear-gradient(90deg,#e04826,#f2a93b)!important; }
+.debrief-banner, .sim-result { border-color:rgba(242,169,59,.3)!important; border-radius:3px!important; }
+.debrief-banner { background:linear-gradient(115deg,rgba(41,31,18,.9),rgba(16,16,12,.95))!important; }
+.panel-card, .dash-card, .hub-modal, .destination-briefing-dialog, .mission-launch-modal,
+.resource-health-dialog, .simulation-warning, .warning-dialog, .mission-modal {
+  background:linear-gradient(145deg,#171813,#0c0c0a)!important; border-color:rgba(242,169,59,.33)!important; border-radius:3px!important;
+}
+.hub-modal label, .hub-modal p, .hub-profile-copy span, .hub-note, .hub-empty { color:#c4c1b5!important; }
+.hub-modal form button, .hub-modal .hub-add-member, .hub-add-member, .hub-account-switch { color:#f2a93b!important; }
+.hub-mode { color: #f2a93b!important; }
+.player-hub { color:#f4f4f2!important; font-family:var(--tactical)!important; }
+.hub-topbar { background: rgba(8,8,7,.88)!important; border-color: #39372c!important; }
+.hub-copy h1 { color: #f4f4f2!important; }
+.hub-copy h1 em { color: #f2a93b!important; }
+.hub-primary { background: linear-gradient(110deg,#e04826,#9f321e)!important; border-radius: 2px!important; }
+.hub-secondary { background: #171813!important; }
+.hub-hero, .hub-orbit-scene { border-color: rgba(242,169,59,.27)!important; border-radius: 3px!important; background: linear-gradient(125deg,rgba(28,29,23,.97),rgba(12,12,10,.98))!important; }
+.hub-planet { filter: sepia(.55) saturate(.85); box-shadow: 0 0 0 4px rgba(242,169,59,.25),0 0 55px rgba(220,72,38,.26),inset -16px -10px 25px #061429aa!important; }
+.hub-ring { border-color: rgba(242,169,59,.34)!important; }
+.hub-saves { background: rgba(13,14,11,.92)!important; }
+.hub-section-title>span, .hub-profile-copy small, .hub-access-list>button, .hub-shortcut-arrow { color: #f2a93b!important; }
+.hub-modal-scrim { background: rgba(0,0,0,.78)!important; }
+.hub-modal { background: linear-gradient(150deg,#171813,#0c0c0a)!important; border-color: rgba(242,169,59,.42)!important; }
+.hub-close { border-radius: 2px!important; background: #151610!important; border-color: #5b4c32!important; color: #e6c991!important; }
+.hub-error, .hub-modal-error { border-color: #8e422c!important; border-radius: 2px!important; background: rgba(84,30,20,.4)!important; color: #ffad8d!important; }
+
+/* Landing page: reuse the same palette and sharp-edged tactical controls. */
+.lucerne { --luc-bg:#070706; --luc-line:rgba(242,169,59,.18); --luc-muted:#aaa99f; --luc-accent:#e04826; background:transparent!important; color:#f4f4f2!important; font-family:var(--tactical)!important; }
+.luc-nav { background:rgba(8,8,7,.91)!important; border-color:#39372c!important; }
+.luc-brand, .luc-brand b { color:#f4f4f2!important; font-family:var(--tactical)!important; }
+.luc-brand-mark { border-radius:2px!important; border-color:#8c6b37!important; color:#f2a93b!important; }
+.luc-live i, .luc-focus-top i, .luc-sensor i { background:#f2a93b!important; box-shadow:0 0 8px rgba(242,169,59,.8)!important; }
+.luc-menu { border-radius:2px!important; border-color:#8e4727!important; color:#f2a93b!important; }
+.luc-hero h1 { font-family:var(--heading)!important; text-transform:uppercase; letter-spacing:.015em!important; color:#f4f4f2!important; }
+.luc-hero h1 em { color:#f2a93b!important; }
+.luc-eyebrow, .luc-event-line, .luc-earth-caption, .luc-coordinate, .luc-sensor, .luc-focus-top, .luc-scroll-note { font-family:var(--mono)!important; }
+.luc-cta { border-color:#e59a38!important; background:linear-gradient(110deg,#e04826,#9f321e)!important; border-radius:2px!important; color:#fff4e2!important; }
+.luc-focus-card { background:rgba(13,14,11,.91)!important; border-color:rgba(242,169,59,.24)!important; border-radius:3px!important; }
+.luc-earth { filter:sepia(.18) hue-rotate(345deg); box-shadow:inset -38px -10px 80px #010308,inset 18px 8px 38px rgba(242,169,59,.1),0 0 70px rgba(220,72,38,.11)!important; }
+.luc-fire { background:#f2a93b!important; box-shadow:0 0 10px 3px rgba(242,169,59,.65),0 0 30px #e04826!important; }
+.luc-chapter h2, .luc-content-section h2 { font-family:var(--heading)!important; text-transform:uppercase; letter-spacing:.02em!important; }
+.luc-tags span, .luc-pills span { border-radius:2px!important; border-color:rgba(242,169,59,.22)!important; color:#cfb981!important; }
+.luc-person img { border-radius:2px!important; border-color:rgba(242,169,59,.32)!important; filter:grayscale(.35) sepia(.12)!important; }
+.luc-sponsor { border-radius:2px!important; border-color:#aaa08c!important; }
+.luc-live-data th { color:#f2a93b!important; border-color:rgba(242,169,59,.22)!important; font-family:var(--mono)!important; }
+.luc-live-data td { border-color:rgba(242,169,59,.11)!important; }
+.luc-footer { border-color:rgba(242,169,59,.2)!important; font-family:var(--mono)!important; }
+
+/* Glass dialogs and overlays take on the same near-black olive surface. */
+[role="dialog"], .modal, .modal-content, .overlay-card, .mission-modal, .launch-modal, .warning-modal {
+  border-radius: 3px!important; border-color: rgba(242,169,59,.32)!important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .game-card, .panel-card, .dash-card, .hub-shortcut, .hub-profile, .objective-card, .pipeline-card, .destination-card { transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+}
+
+/* Consistent micro-interactions on controls across every screen. */
+button:not(:disabled), [role="button"], a[href] {
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease,
+    box-shadow .24s ease, filter .2s ease, translate .22s cubic-bezier(.2,.75,.25,1), scale .16s ease;
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  button:not(:disabled):hover, [role="button"]:hover { translate: 0 -2px; filter: brightness(1.12); }
+  a[href]:hover { color: #f2a93b; }
+  .game-button:hover, .btn-primary:hover, .luc-cta:hover, .hub-primary:hover { box-shadow: 0 5px 20px rgba(224,72,38,.3), 0 0 18px rgba(242,169,59,.16); }
+  .game-card:hover, .dash-card:hover, .hub-shortcut:hover, .hub-profile:hover, .objective-card:hover,
+  .instrument-card:hover, .pipeline-card:hover, .destination-card:hover, .orbit-selector-card:hover {
+    box-shadow: 0 13px 34px rgba(0,0,0,.4), 0 0 0 1px rgba(242,169,59,.1)!important;
+  }
+}
+button:not(:disabled):active, [role="button"]:active { translate: 0 0; scale: .975; filter: brightness(.97); }
+button:disabled { cursor: not-allowed; filter: saturate(.45); }
+button:focus-visible, [role="button"]:focus-visible, a[href]:focus-visible {
+  outline: 2px solid #f2a93b!important; outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(242,169,59,.12)!important;
+}
+.sidebar-link, .nav-item, .game-nav button, .step, .builder-step, .hub-profile>button,
+.hub-account-switch, .hub-add-member, .game-button.text-button { position: relative; }
+.sidebar-link.selected::after, .nav-item.active::after, .game-nav button.selected::after {
+  content: ''; position: absolute; left: 10%; right: 10%; bottom: 2px; height: 2px; pointer-events: none;
+  background: linear-gradient(90deg,#e04826,#f2a93b,#e04826); box-shadow: 0 0 10px rgba(242,169,59,.55);
+  transform-origin: center; animation: tacticalTabIn .32s cubic-bezier(.2,.75,.25,1) both;
+}
+
+/* Dialogs share a soft fade and a short, spring-like rise when opened. */
+@media (prefers-reduced-motion:no-preference) {
+  .hub-modal-scrim, .launch-modal-backdrop, .flight-warning-scrim, .resource-dialog-backdrop,
+  .destination-briefing-backdrop, .sim-preflight-scrim, .debris-challenge-scrim {
+    animation: tacticalBackdropIn .24s ease-out both;
+  }
+  .hub-modal, .launch-modal, .flight-warning-dialog, .resource-health-dialog,
+  .destination-briefing-dialog, .sim-preflight-dialog, .debris-challenge-dialog,
+  .radiation-game-dialog, .radiation-drill-dialog {
+    animation: tacticalDialogIn .38s cubic-bezier(.18,.82,.24,1.12) both;
+    transform-origin: center;
+  }
+  .hub-close, .launch-modal-close, .resource-dialog-close, .debris-close, .radiation-game-exit {
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease, rotate .2s ease, scale .2s ease!important;
+  }
+  .hub-close:hover, .launch-modal-close:hover, .resource-dialog-close:hover, .debris-close:hover, .radiation-game-exit:hover {
+    rotate: 5deg; scale: 1.06; color: #f2a93b!important; border-color: #f2a93b!important;
+  }
+}
+@keyframes tacticalBackdropIn { from { opacity: 0; backdrop-filter: blur(0); } to { opacity: 1; backdrop-filter: blur(8px); } }
+@keyframes tacticalDialogIn { from { opacity: 0; translate: 0 16px; scale: .97; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes tacticalTabIn { from { scale: .25 1; opacity: .3; } to { scale: 1 1; opacity: 1; } }
+
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}

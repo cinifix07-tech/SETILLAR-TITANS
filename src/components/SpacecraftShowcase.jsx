@@ -6,7 +6,7 @@ export default function SpacecraftShowcase({bus,config,payload=[],validation,onO
   const equipmentTags=[config?.powerSource==='solar'?'SOLAR ARRAYS':'RTG GENERATOR',config?.propulsion==='ion'?'ION THRUSTER':'CHEMICAL ENGINE',config?.communications==='highgain'?'HIGH-GAIN ARRAY':config?.communications==='deep'?'DEEP-SPACE DISH':'COMPACT ANTENNA',config?.shielding==='reinforced'?'REINFORCED SHIELDING':'BASIC SHIELDING',...payload.map(item=>item.name.toUpperCase())]
   return <section className="game-card spacecraft-showcase" aria-label={`Selected spacecraft preview: ${bus.name}. Configured equipment: ${equipmentLabel}`}>
     <div className="spacecraft-showcase-head"><span className="game-eyebrow">LIVE SPACECRAFT PREVIEW</span><div className="showcase-status-tools"><span className="showcase-live"><i/>CONFIGURED</span><button type="button" className={`showcase-alert-trigger ${validation?.valid===false?'has-alert':''}`} onClick={onOpenResourceHealth} aria-label={validation?.valid===false?`Open Resource Health. ${validation.issues.length} warnings.`:'Open Resource Health'} aria-haspopup="dialog" aria-expanded={resourceHealthOpen} title="Open Resource Health" data-count={validation?.issues?.length??0}><TriangleAlert size={16}/></button></div></div>
-    <h2>{bus.name}</h2><p>{bus.type} · preview updates with your bus selection</p>
+    <h2>{bus.name}</h2><p>{bus.type} / preview updates with your bus selection</p>
     <div className={`showcase-stage bus-${bus.id}`}>
       <div className="showcase-stars" aria-hidden="true"/><div className="showcase-orbit-ring" aria-hidden="true"/>
       <svg className="showcase-model" viewBox="0 0 640 360" role="img" aria-label={`Illustrative 3D-style ${bus.name} with configured ${equipmentLabel}`}>

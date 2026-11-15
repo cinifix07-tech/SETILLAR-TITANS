@@ -2,7 +2,7 @@
   {
     "id": "pioneer",
     "name": "Pioneer CubeSat",
-    "type": "6U • compact explorer",
+    "type": "6U  and  compact explorer",
     "mass": 8,
     "power": 42,
     "cost": 18,
@@ -13,7 +13,7 @@
   {
     "id": "pathfinder",
     "name": "Pathfinder Bus",
-    "type": "Small satellite • balanced",
+    "type": "Small satellite  and  balanced",
     "mass": 18,
     "power": 95,
     "cost": 32,
@@ -24,7 +24,7 @@
   {
     "id": "horizon",
     "name": "Horizon Surveyor",
-    "type": "Earth science • extended",
+    "type": "Earth science  and  extended",
     "mass": 32,
     "power": 150,
     "cost": 48,

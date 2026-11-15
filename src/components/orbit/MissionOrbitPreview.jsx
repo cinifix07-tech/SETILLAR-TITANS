@@ -46,12 +46,12 @@ export default function MissionOrbitPreview({config,result}) {
   return <section className="mission-orbit-preview" aria-label={`Latest mission orbit preview: ${profile.name}`}>
     <div className="mission-orbit-frame">
       {available?<PreviewBoundary fallback={<StaticOrbitPreview orbit={profile} destination={destination.name}/> }><OrbitScene profile={profile} profiles={profiles} playing={playing&&!reducedMotion} speed={1} restartToken={0} reducedMotion={reducedMotion} controlsRef={controlsRef}/></PreviewBoundary>:<StaticOrbitPreview orbit={profile} destination={destination.name}/>}
-      <div className="mission-orbit-label"><span className="game-eyebrow">{result?'LATEST LAUNCH':'CURRENT FLIGHT PLAN'}</span><b>{profile.abbr} · {profile.name}</b></div>
+      <div className="mission-orbit-label"><span className="game-eyebrow">{result?'LATEST LAUNCH':'CURRENT FLIGHT PLAN'}</span><b>{profile.abbr} / {profile.name}</b></div>
       <button className="mission-orbit-play" onClick={()=>setPlaying(value=>!value)} disabled={reducedMotion} aria-label={playing?'Pause orbit preview':'Play orbit preview'} title={reducedMotion?'Animation disabled by reduced-motion setting':undefined}>{playing?<Pause size={14}/>:<Play size={14}/>}<span>{playing?'PAUSE':'PLAY ORBIT'}</span></button>
       <div className="mission-orbit-destination">DESTINATION / {destination.name.toUpperCase()}</div>
-      {!available&&<span className="mission-orbit-fallback-tag">STATIC PREVIEW · 3D UNAVAILABLE</span>}
-      {result&&<span className={`mission-orbit-result ${result.outcome==='SUCCESS'?'success':''}`}>{result.outcome} · {result.score}/100</span>}
-      <span className="mission-orbit-hint">DRAG TO ROTATE · SCROLL TO ZOOM</span>
+      {!available&&<span className="mission-orbit-fallback-tag">STATIC PREVIEW / 3D UNAVAILABLE</span>}
+      {result&&<span className={`mission-orbit-result ${result.outcome==='SUCCESS'?'success':''}`}>{result.outcome} / {result.score}/100</span>}
+      <span className="mission-orbit-hint">DRAG TO ROTATE / SCROLL TO ZOOM</span>
     </div>
     <p className="mission-orbit-caption">Interactive 3D educational view of the latest configured Earth orbit. Orbit sizes and animation are illustrative, not flight telemetry.</p>
   </section>

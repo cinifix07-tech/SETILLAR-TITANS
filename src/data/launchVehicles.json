@@ -5,7 +5,7 @@
     "mass": 24,
     "cost": 20,
     "comm": 55,
-    "desc": "Lean launch budget • limited payload margin"
+    "desc": "Lean launch budget  and  limited payload margin"
   },
   {
     "id": "atlas",
@@ -13,7 +13,7 @@
     "mass": 45,
     "cost": 34,
     "comm": 90,
-    "desc": "Balanced capacity • dependable data link"
+    "desc": "Balanced capacity  and  dependable data link"
   },
   {
     "id": "titan",
@@ -21,6 +21,6 @@
     "mass": 120,
     "cost": 52,
     "comm": 125,
-    "desc": "Generous capacity • premium cost"
+    "desc": "Generous capacity  and  premium cost"
   }
 ]

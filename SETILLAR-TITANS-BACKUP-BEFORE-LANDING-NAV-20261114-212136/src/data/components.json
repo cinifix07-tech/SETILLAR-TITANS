@@ -1,0 +1,35 @@
+[
+  {
+    "id": "pioneer",
+    "name": "Pioneer CubeSat",
+    "type": "6U • compact explorer",
+    "mass": 8,
+    "power": 42,
+    "cost": 18,
+    "capacity": 24,
+    "description": "A nimble platform for focused, low-power observations.",
+    "icon": "◇"
+  },
+  {
+    "id": "pathfinder",
+    "name": "Pathfinder Bus",
+    "type": "Small satellite • balanced",
+    "mass": 18,
+    "power": 95,
+    "cost": 32,
+    "capacity": 42,
+    "description": "Room for capable instruments and dependable downlink.",
+    "icon": "◈"
+  },
+  {
+    "id": "horizon",
+    "name": "Horizon Surveyor",
+    "type": "Earth science • extended",
+    "mass": 32,
+    "power": 150,
+    "cost": 48,
+    "capacity": 60,
+    "description": "A larger platform for ambitious, high-resolution science.",
+    "icon": "⬡"
+  }
+]

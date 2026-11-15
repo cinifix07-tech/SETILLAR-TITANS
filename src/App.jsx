@@ -7,12 +7,15 @@ import missionData from './data/missions.json' with { type: 'json' }
 import { calculateGameResources, destinations, simulateGameMission, validateGameMission } from './engine/gameEngine.js'
 import { getOrbit } from './engine/resourceCalculator.js'
 import { MissionGame } from './components/MissionGame.jsx'
+import PlayerHub from './components/PlayerHub.jsx'
+import LucerneLanding from './components/LucerneLanding.jsx'
 
 const SAVE_KEY = 'setillar-titans-game-v5'
 const freshConfig = () => ({ ...structuredClone(missionData.defaultConfig), name: 'Lunar Scout 001', destination: 'moon', objective: 'Polar ice survey', craft: 'pioneer', rocket: 'titan', propulsion: 'chemical', powerSource: 'solar', communications: 'deep', shielding: 'basic', fuel: 40, instruments: ['camera','thermal'], orbit: 'sso', reducedMotion: false })
-function loadSave() {
+function loadSave(saveKey) {
   try {
-    const parsed = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null')
+    const legacySave = saveKey === SAVE_KEY ? null : localStorage.getItem(SAVE_KEY)
+    const parsed = JSON.parse(localStorage.getItem(saveKey) ?? legacySave ?? 'null')
     if (!parsed || typeof parsed !== 'object') return null
     const defaults = freshConfig()
     const rawConfig = parsed.config && typeof parsed.config === 'object' ? parsed.config : {}
@@ -26,8 +29,24 @@ function loadSave() {
   } catch { return null }
 }
 function App() {
-  const [saved] = useState(loadSave)
-  const [view, setView] = useState(saved?.view ?? 'overview')
+  const [session, setSession] = useState(null)
+  const [showLanding, setShowLanding] = useState(true)
+  if (!session) return showLanding ? <LucerneLanding onEnter={() => setShowLanding(false)}/> : <PlayerHub onEnter={setSession}/>
+  const exitToHub = () => {
+    if (session.kind === 'account') {
+      const token = localStorage.getItem('setillar-account-token')
+      localStorage.removeItem('setillar-account-token')
+      if (token) fetch('/api/game/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }).catch(() => {})
+    }
+    setSession(null)
+  }
+  return <MissionSession key={`${session.kind}-${session.id}`} session={session} onExitToHub={exitToHub}/>
+}
+
+function MissionSession({ session, onExitToHub }) {
+  const saveKey = `${SAVE_KEY}:${session.kind === 'account' ? 'player' : session.kind}:${session.id}`
+  const [saved] = useState(() => loadSave(saveKey))
+  const [view, setView] = useState(session.startView ?? saved?.view ?? 'overview')
   const [config, setConfig] = useState(() => ({ ...freshConfig(), ...(saved?.config ?? {}) }))
   const [result, setResult] = useState(saved?.result ?? null)
   const [history, setHistory] = useState(saved?.history ?? [])
@@ -39,8 +58,8 @@ function App() {
   const validation = useMemo(() => validateGameMission(config, calc), [config, calc])
 
   useEffect(() => {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ config, result, history, discoveries, simulation, view: view === 'simulation' ? 'simulation' : view })) } catch { /* Private browsing or quota restrictions leave the session usable. */ }
-  }, [config, result, history, discoveries, simulation, view])
+    try { localStorage.setItem(saveKey, JSON.stringify({ config, result, history, discoveries, simulation, view: view === 'simulation' ? 'simulation' : view })) } catch { /* Private browsing or quota restrictions leave the session usable. */ }
+  }, [saveKey, config, result, history, discoveries, simulation, view])
   useEffect(() => {
     if (!orbitNotice) return undefined
     const timeout = window.setTimeout(() => setOrbitNotice(''), 4200)
@@ -75,6 +94,6 @@ function App() {
   }
   const freshMission = () => { setConfig(freshConfig()); setResult(null); setSimulation({ seconds: 0, speed: 1, choice: null, finished: false }); setView('explore') }
   const applyOrbit = (id) => { patchConfig('orbit', id); setView('builder'); setOrbitNotice(`${getOrbit(id).name} applied to your shared mission configuration. Other settings were kept.`) }
-  return <MissionGame view={view} setView={setView} config={config} patchConfig={patchConfig} calc={calc} validation={validation} result={result} onNewMission={newMission} onFreshMission={freshMission} onLaunch={launch} onComplete={finishSimulation} onDebrief={() => setView('debrief')} onOrbit={applyOrbit} simulation={simulation} onSimulationChange={setSimulation} history={history} discoveries={discoveries} orbitNotice={orbitNotice}/>
+  return <MissionGame view={view} setView={setView} config={config} patchConfig={patchConfig} calc={calc} validation={validation} result={result} onNewMission={newMission} onFreshMission={freshMission} onLaunch={launch} onComplete={finishSimulation} onDebrief={() => setView('debrief')} onOrbit={applyOrbit} simulation={simulation} onSimulationChange={setSimulation} history={history} discoveries={discoveries} orbitNotice={orbitNotice} crewSession={session} onExitToHub={onExitToHub}/>
 }
 export default App

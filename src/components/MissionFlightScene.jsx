@@ -83,7 +83,7 @@ function FlightSceneFallback({seconds,config,showMascot=false}) {
       </g>
       <text x="30" y="35" className="flight-label">ILLUSTRATIVE FLIGHT SEQUENCE / NOT TO SCALE</text>
     </svg>
-    <div className="flight-stage-pill"><i/>{stage}<span>· {orbit.abbr} ORBIT</span></div>
+    <div className="flight-stage-pill"><i/>{stage}<span> / {orbit.abbr} ORBIT</span></div>
     <span className="sim-readout">{destination.name.toUpperCase()} / {Math.floor(seconds/60*100)}% COMPLETE</span>
   </div>
 }

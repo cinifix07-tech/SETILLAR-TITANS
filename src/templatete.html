@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPACE MISSION: BEYOND EARTH — Celestial Aurora K-12 Game UI</title>
+
+  <!-- Google Fonts: Space Grotesk, Chakra Petch & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Space Grotesk"', '"Chakra Petch"', 'sans-serif'],
+            tech: ['"Chakra Petch"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ==========================================================================
+       1. THEME DESIGN TOKENS (CELESTIAL AURORA UPGRADE VS. ORIGINAL TEAL)
+       ========================================================================== */
+    :root {
+      /* Upgraded "Celestial Aurora & Solar Horizon" Palette */
+      --bg-space: #0B1021;
+      --bg-space-deep: #060913;
+      --planet-core-start: #1E3A6E;
+      --planet-core-mid: #15284B;
+      --planet-core-end: #0D1930;
+      --planet-limb-cyan: #38BDF8;
+      --planet-limb-violet: #A78BFA;
+      --headline-primary: #F8FAFC;
+      --headline-secondary: #E2E8F0;
+      --accent-cyan: #22D3EE;
+      --accent-violet: #A78BFA;
+      --subtext-mist: #CBD5E1;
+      --cta-bg: linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%);
+      --cta-shadow: 0 10px 30px -4px rgba(255, 107, 53, 0.55), 0 0 18px rgba(245, 158, 11, 0.35);
+      --cta-text: #0B1021;
+      --glass-bg: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(56, 189, 248, 0.36);
+      --glass-hover: rgba(56, 189, 248, 0.16);
+      --hud-muted: rgba(203, 213, 225, 0.62);
+      --hud-bright: #F8FAFC;
+      --status-dot: #22D3EE;
+      --astronaut-rim: rgba(251, 191, 36, 0.45);
+    }
+
+    /* Original Mockup Palette (For Live Before / After Comparison Toggle) */
+    [data-palette="original"] {
+      --bg-space: #132A42;
+      --bg-space-deep: #0E2034;
+      --planet-core-start: #53A5B8;
+      --planet-core-mid: #438FA3;
+      --planet-core-end: #34778B;
+      --planet-limb-cyan: rgba(125, 211, 226, 0.45);
+      --planet-limb-violet: rgba(99, 179, 198, 0.2);
+      --headline-primary: #F1F5F9;
+      --headline-secondary: #A5D8E6;
+      --accent-cyan: #67C5D8;
+      --accent-violet: #64748B;
+      --subtext-mist: #CBD5E1;
+      --cta-bg: linear-gradient(135deg, #C93B4B 0%, #B83242 100%);
+      --cta-shadow: 0 8px 20px rgba(201, 59, 75, 0.35);
+      --cta-text: #FFFFFF;
+      --glass-bg: rgba(15, 35, 56, 0.55);
+      --glass-border: rgba(148, 197, 214, 0.28);
+      --glass-hover: rgba(148, 197, 214, 0.14);
+      --hud-muted: rgba(226, 232, 240, 0.65);
+      --hud-bright: #E2E8F0;
+      --status-dot: #6EE7B7;
+      --astronaut-rim: rgba(255, 255, 255, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background-color: var(--bg-space);
+      color: var(--headline-primary);
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.45s ease, color 0.45s ease;
+    }
+
+    /* Cosmic Backdrop & Subtle Starfield */
+    .space-canvas {
+      background:
+        radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.11) 0%, transparent 45%),
+        radial-gradient(circle at 75% 80%, rgba(167, 139, 250, 0.12) 0%, transparent 50%),
+        linear-gradient(135deg, var(--bg-space-deep) 0%, var(--bg-space) 55%, var(--bg-space-deep) 100%);
+      transition: background 0.45s ease;
+    }
+
+    /* Giant Right-Hand Planet Sphere with Atmospheric Limb */
+    .orbital-planet {
+      background: radial-gradient(
+        circle at 26% 35%,
+        var(--planet-core-start) 0%,
+        var(--planet-core-mid) 52%,
+        var(--planet-core-end) 100%
+      );
+      box-shadow:
+        inset 18px 0 48px rgba(56, 189, 248, 0.34),
+        inset 4px 0 14px var(--planet-limb-cyan),
+        -12px 0 55px rgba(56, 189, 248, 0.24),
+        -28px 0 95px rgba(167, 139, 250, 0.16);
+      border-left: 2px solid var(--planet-limb-cyan);
+      transition: all 0.45s ease;
+    }
+
+    /* Primary Solar Launch CTA Button */
+    .btn-solar-cta {
+      background: var(--cta-bg);
+      box-shadow: var(--cta-shadow);
+      color: var(--cta-text);
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, filter 0.2s ease;
+    }
+    .btn-solar-cta:hover {
+      transform: translateY(-2px) scale(1.015);
+      filter: brightness(1.07);
+    }
+    .btn-solar-cta:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* Secondary Frosted Glass HUD Pill */
+    .btn-glass-hud {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: all 0.22s ease;
+    }
+    .btn-glass-hud:hover {
+      background: var(--glass-hover);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1.5px);
+      box-shadow: 0 8px 24px rgba(34, 211, 238, 0.18);
+    }
+
+    /* Floating Zero-Gravity Animations */
+    @keyframes floatAstronaut {
+      0%, 100% {
+        transform: translateY(0px) rotate(-1.5deg);
+      }
+      50% {
+        transform: translateY(-12px) rotate(1.8deg);
+      }
+    }
+
+    @keyframes floatSatellite {
+      0%, 100% {
+        transform: translateY(0px) translateX(0px);
+      }
+      50% {
+        transform: translateY(9px) translateX(-5px);
+      }
+    }
+
+    @keyframes pulseTwinkle {
+      0%, 100% {
+        opacity: 0.25;
+        transform: scale(0.9);
+      }
+      50% {
+        opacity: 0.95;
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes pulseThruster {
+      0%, 100% {
+        opacity: 0.78;
+        transform: scaleY(0.95);
+      }
+      50% {
+        opacity: 1;
+        transform: scaleY(1.12);
+      }
+    }
+
+    .animate-astronaut {
+      animation: floatAstronaut 5.8s ease-in-out infinite;
+    }
+
+    .animate-satellite {
+      animation: floatSatellite 6.6s ease-in-out infinite;
+    }
+
+    .animate-thruster {
+      transform-origin: top center;
+      animation: pulseThruster 1.4s ease-in-out infinite;
+    }
+
+    .star-twinkle {
+      animation: pulseTwinkle 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="space-canvas min-h-screen flex flex-col justify-between selection:bg-cyan-400 selection:text-slate-950">
+
+  <!-- ========================================================================
+       BACKGROUND LAYER: TWINKLING STARS, ORBITAL ARCS & GIANT SAPPHIRE PLANET
+       ======================================================================== -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <!-- Subtle Starfield Dots -->
+    <div class="star-twinkle absolute top-[14%] left-[26%] w-1 h-1 rounded-full bg-white/80" style="animation-delay: 0.2s"></div>
+    <div class="star-twinkle absolute top-[24%] left-[41%] w-1.5 h-1.5 rounded-full bg-cyan-300/80" style="animation-delay: 1.1s"></div>
+    <div class="star-twinkle absolute top-[68%] left-[12%] w-1 h-1 rounded-full bg-violet-300/80" style="animation-delay: 2.3s"></div>
+    <div class="star-twinkle absolute top-[82%] left-[34%] w-1.5 h-1.5 rounded-full bg-amber-200/75" style="animation-delay: 0.7s"></div>
+    <div class="star-twinkle absolute top-[19%] left-[11%] w-1 h-1 rounded-full bg-white/65" style="animation-delay: 1.8s"></div>
+    <div class="star-twinkle absolute top-[45%] left-[39%] w-1 h-1 rounded-full bg-cyan-200/70" style="animation-delay: 2.9s"></div>
+
+    <!-- Faint Orbital Trajectory Arcs -->
+    <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1440 900" fill="none">
+      <circle cx="1140" cy="480" r="560" stroke="#38BDF8" stroke-width="1" stroke-dasharray="6 10" />
+      <circle cx="1140" cy="480" r="690" stroke="#A78BFA" stroke-width="0.8" stroke-dasharray="3 14" />
+    </svg>
+
+    <!-- Giant Curved Planet on Right Half (Upgraded Deep Orbital Sapphire + Cyan/Violet Rim) -->
+    <div
+      id="parallaxPlanet"
+      class="orbital-planet absolute -right-[24%] sm:-right-[16%] lg:-right-[10%] top-[-12%] w-[88vw] h-[124vh] max-w-[980px] rounded-full"
+    >
+      <!-- Subtle Atmospheric Surface Bands & Crater Texture -->
+      <div
+        class="w-full h-full rounded-full opacity-35"
+        style="
+          background:
+            radial-gradient(circle at 38% 28%, rgba(56, 189, 248, 0.18) 0%, transparent 32%),
+            radial-gradient(circle at 62% 68%, rgba(167, 139, 250, 0.16) 0%, transparent 40%),
+            radial-gradient(circle at 46% 52%, rgba(255, 255, 255, 0.04) 0%, transparent 25%);
+        "
+      ></div>
+
+      <!-- Distant Secondary Moon in Lower-Right Orbital Field -->
+      <div
+        class="hidden sm:block absolute bottom-[18%] right-[24%] w-24 h-24 lg:w-32 lg:h-32 rounded-full border border-cyan-300/20 opacity-65"
+        style="
+          background: radial-gradient(circle at 30% 30%, rgba(148, 197, 235, 0.28) 0%, rgba(15, 29, 58, 0.65) 75%);
+          box-shadow: inset 6px 0 14px rgba(56, 189, 248, 0.25);
+        "
+      ></div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TOP HUD HEADER: BRAND BADGE, PALETTE COMPARE TOGGLE & FLIGHT SYSTEMS STATUS
+       ======================================================================== -->
+  <header class="relative z-20 w-full px-6 pt-6 sm:px-10 lg:px-14 lg:pt-8 flex flex-wrap items-center justify-between gap-4">
+    <!-- Top-Left Brand Emblem + Title -->
+    <div class="flex items-center gap-3.5">
+      <div
+        class="relative w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-[#1E3A6E] to-[#0B1021] border border-amber-400/60 shadow-[0_0_16px_rgba(251,191,36,0.35)]"
+      >
+        <!-- Mini Planet & Rocket Emblem SVG -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="14" r="6.5" fill="url(#emblemPlanet)" />
+          <path d="M13.5 4.5L16.5 7.5L11 13L8 10L13.5 4.5Z" fill="#F8FAFC" />
+          <path d="M16.5 7.5L18.5 5.5L15.5 3.5L13.5 4.5L16.5 7.5Z" fill="#FF6B35" />
+          <defs>
+            <linearGradient id="emblemPlanet" x1="6" y1="8" x2="18" y2="20" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FF6B35" />
+              <stop offset="1" stop-color="#A78BFA" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="font-tech font-bold uppercase tracking-[0.18em] text-[13px] sm:text-[14px] text-[#F8FAFC]">
+        BEYOND EARTH
+      </span>
+    </div>
+
+    <!-- Top-Center Live Palette Comparison Switcher (For Easy Visual Review) -->
+    <div
+      class="order-3 sm:order-2 w-full sm:w-auto flex items-center justify-center"
+    >
+      <div
+        class="inline-flex items-center p-1 rounded-full bg-[#070B17]/80 border border-white/15 backdrop-blur-md shadow-lg"
+        role="group"
+        aria-label="Color Palette Comparison Toggle"
+      >
+        <button
+          type="button"
+          id="btnAuroraTheme"
+          onclick="setThemeMode('aurora')"
+          class="px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#0B1021] shadow-sm"
+        >
+          ✦ Celestial Aurora (New)
+        </button>
+        <button
+          type="button"
+          id="btnOriginalTheme"
+          onclick="setThemeMode('original')"
+          class="px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer text-slate-300 hover:text-white"
+        >
+          Original Teal
+        </button>
+      </div>
+    </div>
+
+    <!-- Top-Right Telemetry Status (Crisp High-Contrast Readability) -->
+    <div class="order-2 sm:order-3 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#090E1D]/65 border border-white/10 backdrop-blur-md">
+      <span
+        class="w-2 h-2 rounded-full animate-pulse"
+        style="background-color: var(--status-dot); box-shadow: 0 0 10px var(--status-dot);"
+      ></span>
+      <span class="font-mono text-[11px] sm:text-[11.5px] font-semibold tracking-[0.14em] uppercase text-[#F8FAFC]">
+        FLIGHT SYSTEMS ONLINE
+      </span>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN HERO STAGE: LEFT COMMAND COLUMN + RIGHT FLOATING ASTRONAUT & SATELLITE
+       ======================================================================== -->
+  <main class="relative z-10 flex-1 w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 py-8 lg:py-0 grid grid-cols-1 lg:grid-cols-12 items-center gap-10">
+
+    <!-- LEFT HERO COLUMN (7 Cols on Desktop) -->
+    <section class="lg:col-span-7 flex flex-col items-start text-left max-w-2xl">
+      <!-- Active Pilot Pill Badge (Updates when student picks a pilot) -->
+      <div
+        id="activePilotBadge"
+        class="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-cyan-400/30 text-[11.5px] font-mono tracking-wider uppercase text-cyan-300"
+      >
+        <span>ACTIVE PILOT:</span>
+        <strong id="activePilotName" class="text-white font-semibold">UNASSIGNED CADET</strong>
+      </div>
+
+      <!-- Massive Geometric Display Title -->
+      <h1 class="font-display font-bold uppercase tracking-[-0.02em] leading-[0.96] text-[44px] sm:text-[62px] xl:text-[74px]">
+        <span class="block" style="color: var(--headline-primary);">SPACE MISSION:</span>
+        <span
+          class="block mt-1"
+          style="color: var(--headline-secondary); text-shadow: 0 4px 28px rgba(56, 189, 248, 0.22);"
+        >
+          BEYOND EARTH
+        </span>
+      </h1>
+
+      <!-- Status Subheadline + 3-Dot Telemetry Indicator -->
+      <div class="mt-5 flex items-center gap-3">
+        <p
+          class="font-display font-semibold text-[18px] sm:text-[21px] tracking-[0.01em]"
+          style="color: var(--accent-cyan);"
+        >
+          Your next mission is waiting
+        </p>
+        <div class="flex items-center gap-1.5" aria-hidden="true">
+          <span class="w-2 h-2 rounded-full" style="background-color: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan);"></span>
+          <span class="w-2 h-2 rounded-full opacity-75" style="background-color: var(--accent-violet);"></span>
+          <span class="w-2 h-2 rounded-full bg-white/25"></span>
+        </div>
+      </div>
+
+      <!-- Student-Friendly Mission Tagline -->
+      <p
+        class="mt-2.5 text-[15px] sm:text-[16px] leading-relaxed max-w-lg"
+        style="color: var(--subtext-mist);"
+      >
+        Pick a destination. Build your spacecraft. Make the calls that bring the science home.
+      </p>
+
+      <!-- Primary Solar Launch CTA Button -->
+      <div class="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
+        <button
+          type="button"
+          onclick="openModal('pilotModal')"
+          class="btn-solar-cta inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-xl font-tech font-bold uppercase tracking-[0.1em] text-[14px] cursor-pointer"
+        >
+          <span>CHOOSE YOUR PILOT</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4.5 11.5L11.5 4.5M11.5 4.5H5.5M11.5 4.5V10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Secondary Frosted Glass HUD Navigation Pills -->
+      <div class="mt-3.5 flex flex-wrap items-center gap-3 w-full sm:w-auto">
+        <button
+          type="button"
+          onclick="openModal('trainingModal')"
+          class="btn-glass-hud inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-[#F8FAFC] cursor-pointer"
+        >
+          <!-- Training Clipboard Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-cyan-300">
+            <rect x="5" y="4" width="14" height="17" rx="2.5" stroke="currentColor" stroke-width="1.8" />
+            <path d="M9 9H15M9 13H15M9 17H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <span>Training Bay</span>
+          <span class="text-cyan-300/80 ml-0.5">→</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="openModal('hangarModal')"
+          class="btn-glass-hud inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium text-[#F8FAFC] cursor-pointer"
+        >
+          <!-- Rocket / Hangar Icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-violet-300">
+            <path
+              d="M12 2.5C15.5 6 17 10.5 17 14.5L12 17.5L7 14.5C7 10.5 8.5 6 12 2.5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+            <circle cx="12" cy="10.5" r="2" fill="currentColor" />
+            <path d="M9 16.5L7.5 20.5M15 16.5L16.5 20.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <span>Spacecraft Hangar</span>
+          <span class="text-violet-300/80 ml-0.5">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- RIGHT HERO SCENE: STYLIZED K-12 ASTRONAUT & SCIENCE SATELLITE (5 Cols) -->
+    <section
+      id="parallaxCrew"
+      class="lg:col-span-5 relative flex items-center justify-center lg:justify-end min-h-[280px] sm:min-h-[340px]"
+      aria-label="Astronaut and Science Satellite Preview"
+    >
+      <div class="relative w-full max-w-[440px] flex items-center justify-center">
+        <!-- Warm Golden Rim Backlight Aura behind Crew -->
+        <div
+          class="absolute w-64 h-64 rounded-full blur-3xl pointer-events-none transition-all duration-500"
+          style="background: radial-gradient(circle, var(--astronaut-rim) 0%, rgba(56, 189, 248, 0.16) 55%, transparent 75%);"
+        ></div>
+
+        <!-- Crisp Custom SVG Scene: Waving K-12 Astronaut + Solar Science Satellite -->
+        <svg
+          viewBox="0 0 440 280"
+          class="w-full h-auto overflow-visible drop-shadow-[0_18px_32px_rgba(6,10,24,0.65)]"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <!-- Astronaut Suit & Visor Gradients -->
+            <linearGradient id="suitGrad" x1="65" y1="60" x2="145" y2="215" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FFFFFF" />
+              <stop offset="65%" stop-color="#E2E8F0" />
+              <stop offset="100%" stop-color="#94A3B8" />
+            </linearGradient>
+            <linearGradient id="visorGrad" x1="82" y1="74" x2="128" y2="112" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0F172A" />
+              <stop offset="55%" stop-color="#1E3A8A" />
+              <stop offset="100%" stop-color="#38BDF8" />
+            </linearGradient>
+            <!-- Satellite Solar Panel & Hull Gradients -->
+            <linearGradient id="solarBlue" x1="0" y1="0" x2="80" y2="50" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#1D4ED8" />
+              <stop offset="50%" stop-color="#2563EB" />
+              <stop offset="100%" stop-color="#38BDF8" />
+            </linearGradient>
+            <linearGradient id="satelliteBody" x1="265" y1="115" x2="325" y2="185" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#F8FAFC" />
+              <stop offset="100%" stop-color="#94A3B8" />
+            </linearGradient>
+            <linearGradient id="thrusterFlame" x1="295" y1="184" x2="295" y2="215" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#FBBF24" />
+              <stop offset="60%" stop-color="#FF6B35" />
+              <stop offset="100%" stop-color="#FF6B35" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+
+          <!-- Dashed Telemetry Link Orbit Arc -->
+          <path
+            d="M170 165 Q295 215 415 155"
+            stroke="#38BDF8"
+            stroke-opacity="0.45"
+            stroke-width="1.5"
+            stroke-dasharray="4 6"
+          />
+
+          <!-- FLOATING ASTRONAUT GROUP -->
+          <g class="animate-astronaut">
+            <!-- Backpack Life Support Unit -->
+            <rect x="70" y="112" width="68" height="58" rx="12" fill="#94A3B8" stroke="#FBBF24" stroke-width="1.5" />
+
+            <!-- Waving Right Arm -->
+            <path
+              d="M134 126 C152 110, 162 88, 165 66"
+              stroke="url(#suitGrad)"
+              stroke-width="18"
+              stroke-linecap="round"
+            />
+            <circle cx="165" cy="64" r="9.5" fill="#F8FAFC" stroke="#38BDF8" stroke-width="1.5" />
+
+            <!-- Left Arm -->
+            <path
+              d="M74 128 C60 142, 58 158, 64 170"
+              stroke="url(#suitGrad)"
+              stroke-width="17"
+              stroke-linecap="round"
+            />
+            <circle cx="64" cy="172" r="9" fill="#E2E8F0" />
+
+            <!-- Legs & Space Boots -->
+            <rect x="81" y="168" width="18" height="40" rx="8" fill="url(#suitGrad)" />
+            <rect x="109" y="168" width="18" height="40" rx="8" fill="url(#suitGrad)" />
+            <rect x="77" y="200" width="24" height="12" rx="5" fill="#334155" stroke="#38BDF8" stroke-width="1.2" />
+            <rect x="107" y="200" width="24" height="12" rx="5" fill="#334155" stroke="#38BDF8" stroke-width="1.2" />
+
+            <!-- Torso & Chest Control Module -->
+            <rect x="75" y="116" width="58" height="60" rx="16" fill="url(#suitGrad)" stroke="#F8FAFC" stroke-width="1.5" />
+            <rect x="90" y="130" width="28" height="22" rx="5" fill="#0F172A" stroke="#38BDF8" stroke-width="1.4" />
+            <circle cx="98" cy="138" r="2.5" fill="#22D3EE" />
+            <circle cx="109" cy="138" r="2.5" fill="#FBBF24" />
+            <rect x="95" y="144" width="18" height="3" rx="1.5" fill="#A78BFA" />
+            <!-- Mission Patch Diamond -->
+            <polygon points="122,155 126,159 122,163 118,159" fill="#FF6B35" />
+
+            <!-- Space Helmet & Reflective Visor -->
+            <circle cx="104" cy="92" r="30" fill="url(#suitGrad)" stroke="#FBBF24" stroke-width="1.8" />
+            <rect x="82" y="75" width="44" height="30" rx="14" fill="url(#visorGrad)" stroke="#38BDF8" stroke-width="1.8" />
+            <!-- Visor Highlight Reflection -->
+            <path d="M89 82 C97 78, 111 78, 119 82" stroke="#BAE6FD" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+          </g>
+
+          <!-- FLOATING SCIENCE SATELLITE GROUP -->
+          <g class="animate-satellite">
+            <!-- Left & Right Solar Array Struts -->
+            <line x1="232" y1="142" x2="268" y2="152" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" />
+            <line x1="322" y1="152" x2="358" y2="142" stroke="#FBBF24" stroke-width="3.5" stroke-linecap="round" />
+
+            <!-- Left Solar Panel Wing -->
+            <g transform="translate(168, 118)">
+              <rect width="66" height="44" rx="4" fill="url(#solarBlue)" stroke="#7DD3FC" stroke-width="1.6" />
+              <line x1="22" y1="0" x2="22" y2="44" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+              <line x1="44" y1="0" x2="44" y2="44" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+              <line x1="0" y1="22" x2="66" y2="22" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+            </g>
+
+            <!-- Right Solar Panel Wing -->
+            <g transform="translate(356, 118)">
+              <rect width="66" height="44" rx="4" fill="url(#solarBlue)" stroke="#7DD3FC" stroke-width="1.6" />
+              <line x1="22" y1="0" x2="22" y2="44" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+              <line x1="44" y1="0" x2="44" y2="44" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+              <line x1="0" y1="22" x2="66" y2="22" stroke="#BAE6FD" stroke-opacity="0.45" stroke-width="1" />
+            </g>
+
+            <!-- High-Gain Dish Antenna -->
+            <path d="M312 126 L332 106" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M322 103 L335 103 L335 116" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- Octagonal Satellite Core Hull -->
+            <polygon
+              points="280,124 310,124 326,140 326,166 310,182 280,182 264,166 264,140"
+              fill="url(#satelliteBody)"
+              stroke="#38BDF8"
+              stroke-width="2"
+            />
+            <!-- Science Sensor Lens -->
+            <circle cx="295" cy="153" r="11" fill="#0F172A" stroke="#22D3EE" stroke-width="2" />
+            <circle cx="295" cy="153" r="4.5" fill="#38BDF8" />
+
+            <!-- Warm Solar Thruster Plume -->
+            <polygon
+              class="animate-thruster"
+              points="281,183 309,183 316,208 295,198 274,208"
+              fill="url(#thrusterFlame)"
+            />
+          </g>
+        </svg>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       BOTTOM TELEMETRY FOOTER BAR
+       ======================================================================== -->
+  <footer class="relative z-20 w-full px-6 pb-5 pt-3 sm:px-10 lg:px-14 lg:pb-7">
+    <div class="w-full border-t border-white/15 pt-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-mono tracking-[0.12em] uppercase">
+      <!-- Bottom-Left System Telemetry -->
+      <div class="text-center sm:text-left">
+        <div style="color: var(--hud-muted);">FLIGHT SYSTEMS</div>
+        <div class="font-semibold mt-0.5" style="color: var(--hud-bright);">
+          ONLINE &middot; AUTO-SAVE ACTIVE
+        </div>
+      </div>
+
+      <!-- Bottom-Center Action Guide -->
+      <div class="hidden md:flex items-center gap-3" style="color: var(--hud-muted);">
+        <span class="w-6 h-[1px] bg-cyan-400/50"></span>
+        <span>CHOOSE YOUR NEXT MOVE</span>
+        <span class="w-6 h-[1px] bg-cyan-400/50"></span>
+      </div>
+
+      <!-- Bottom-Right Mission Counter -->
+      <div class="text-center sm:text-right">
+        <div style="color: var(--hud-muted);">FLIGHT HISTORY</div>
+        <div id="missionCountText" class="font-semibold mt-0.5" style="color: var(--hud-bright);">
+          0 COMPLETED MISSIONS
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       INTERACTIVE MODAL 1: K-12 INCLUSIVE PILOT SELECTION ("CHOOSE YOUR PILOT")
+       ======================================================================== -->
+  <div
+    id="pilotModal"
+    class="hidden fixed inset-0 z-50 items-center justify-center bg-[#060913]/80 backdrop-blur-md p-4"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="w-full max-w-2xl rounded-2xl bg-[#0F172A]/95 border border-cyan-400/35 p-6 sm:p-8 shadow-[0_24px_70px_rgba(0,0,0,0.75)]">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-cyan-300">CREW ROSTER // K-12 EXPLORERS</span>
+          <h2 class="font-display font-bold text-2xl sm:text-3xl text-white mt-0.5">CHOOSE YOUR PILOT</h2>
+        </div>
+        <button
+          type="button"
+          onclick="closeModal('pilotModal')"
+          class="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
+          aria-label="Close Pilot Modal"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <button
+          type="button"
+          onclick="selectPilot('COMMANDER NOVA')"
+          class="text-left p-4 rounded-xl bg-white/[0.04] hover:bg-cyan-400/15 border border-white/10 hover:border-cyan-400 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-tech font-bold text-lg text-white group-hover:text-cyan-300">COMMANDER NOVA</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-400/20 text-cyan-300">ASTRO-NAV</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1.5">Expert in orbital trajectories, deep-space radar, and comet sample recovery.</p>
+        </button>
+
+        <button
+          type="button"
+          onclick="selectPilot('PILOT ORION')"
+          class="text-left p-4 rounded-xl bg-white/[0.04] hover:bg-amber-400/15 border border-white/10 hover:border-amber-400 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-tech font-bold text-lg text-white group-hover:text-amber-300">PILOT ORION</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-400/20 text-amber-300">FLIGHT LEAD</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1.5">Precision shuttle docking specialist with rapid thruster boost control.</p>
+        </button>
+
+        <button
+          type="button"
+          onclick="selectPilot('ENGINEER ZARA')"
+          class="text-left p-4 rounded-xl bg-white/[0.04] hover:bg-violet-400/15 border border-white/10 hover:border-violet-400 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-tech font-bold text-lg text-white group-hover:text-violet-300">ENGINEER ZARA</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-violet-400/20 text-violet-300">ROBOTICS</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1.5">Builds solar-array satellites and rover science labs on distant moons.</p>
+        </button>
+
+        <button
+          type="button"
+          onclick="selectPilot('SPECIALIST LEO')"
+          class="text-left p-4 rounded-xl bg-white/[0.04] hover:bg-emerald-400/15 border border-white/10 hover:border-emerald-400 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center justify-between">
+            <span class="font-tech font-bold text-lg text-white group-hover:text-emerald-300">SPECIALIST LEO</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-400/20 text-emerald-300">EXO-SCIENCE</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1.5">Analyzes planetary atmospheres, ice crystals, and alien biosignatures.</p>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       INTERACTIVE MODAL 2: TRAINING BAY QUICK SIMULATION
+       ======================================================================== -->
+  <div
+    id="trainingModal"
+    class="hidden fixed inset-0 z-50 items-center justify-center bg-[#060913]/80 backdrop-blur-md p-4"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="w-full max-w-md rounded-2xl bg-[#0F172A]/95 border border-cyan-400/35 p-6 sm:p-7 text-center shadow-2xl">
+      <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-cyan-300">SIMULATION DECK</span>
+      <h2 class="font-display font-bold text-2xl text-white mt-1">ORBITAL TRAINING BAY</h2>
+      <p class="text-sm text-slate-300 mt-2.5 leading-relaxed">
+        Test your spacecraft telemetry and complete a 5-second pre-flight systems check to earn your first mission badge!
+      </p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          onclick="completeTrainingCheck()"
+          class="btn-solar-cta px-5 py-2.5 rounded-xl font-tech font-bold uppercase text-xs tracking-wider cursor-pointer"
+        >
+          COMPLETE FLIGHT CHECK ✓
+        </button>
+        <button
+          type="button"
+          onclick="closeModal('trainingModal')"
+          class="btn-glass-hud px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 cursor-pointer"
+        >
+          CLOSE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       INTERACTIVE MODAL 3: SPACECRAFT HANGAR PREVIEW
+       ======================================================================== -->
+  <div
+    id="hangarModal"
+    class="hidden fixed inset-0 z-50 items-center justify-center bg-[#060913]/80 backdrop-blur-md p-4"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="w-full max-w-md rounded-2xl bg-[#0F172A]/95 border border-violet-400/35 p-6 sm:p-7 text-center shadow-2xl">
+      <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-violet-300">ASSEMBLY BAY</span>
+      <h2 class="font-display font-bold text-2xl text-white mt-1">SPACECRAFT HANGAR</h2>
+      <div class="mt-4 space-y-2 text-left text-xs font-mono">
+        <div class="flex justify-between p-2.5 rounded-lg bg-white/5 border border-white/10">
+          <span class="text-slate-400">HULL SHIELDING</span>
+          <span class="text-cyan-300">AURORA COMPOSITE MK-IV</span>
+        </div>
+        <div class="flex justify-between p-2.5 rounded-lg bg-white/5 border border-white/10">
+          <span class="text-slate-400">THRUSTER DRIVE</span>
+          <span class="text-amber-300">SOLAR ION PULSE</span>
+        </div>
+        <div class="flex justify-between p-2.5 rounded-lg bg-white/5 border border-white/10">
+          <span class="text-slate-400">SCIENCE PAYLOAD</span>
+          <span class="text-violet-300">SPECTROMETER PROBE</span>
+        </div>
+      </div>
+      <div class="mt-6">
+        <button
+          type="button"
+          onclick="closeModal('hangarModal')"
+          class="btn-glass-hud px-5 py-2.5 rounded-xl text-xs font-semibold text-white cursor-pointer"
+        >
+          RETURN TO LOBBY
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT: PALETTE TOGGLE, PARALLAX DEPTH & MODAL INTERACTIONS
+       ======================================================================== -->
+  <script>
+    let completedMissions = 0;
+
+    // Switch between upgraded "Celestial Aurora" palette and original mockup palette
+    function setThemeMode(mode) {
+      const root = document.documentElement;
+      const btnAurora = document.getElementById('btnAuroraTheme');
+      const btnOriginal = document.getElementById('btnOriginalTheme');
+
+      if (mode === 'original') {
+        root.setAttribute('data-palette', 'original');
+        btnOriginal.className =
+          'px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer bg-white text-slate-900 shadow-sm';
+        btnAurora.className =
+          'px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer text-slate-300 hover:text-white';
+      } else {
+        root.removeAttribute('data-palette');
+        btnAurora.className =
+          'px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#0B1021] shadow-sm';
+        btnOriginal.className =
+          'px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider uppercase transition-all cursor-pointer text-slate-300 hover:text-white';
+      }
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+    }
+
+    function selectPilot(name) {
+      document.getElementById('activePilotName').textContent = name;
+      closeModal('pilotModal');
+    }
+
+    function completeTrainingCheck() {
+      completedMissions += 1;
+      const label = completedMissions === 1 ? '1 COMPLETED MISSION' : `${completedMissions} COMPLETED MISSIONS`;
+      document.getElementById('missionCountText').textContent = label;
+      closeModal('trainingModal');
+    }
+
+    // Subtle mouse-move parallax for the planet and astronaut crew
+    window.addEventListener('mousemove', (e) => {
+      const xRatio = (e.clientX / window.innerWidth - 0.5) * 2;
+      const yRatio = (e.clientY / window.innerHeight - 0.5) * 2;
+
+      const planet = document.getElementById('parallaxPlanet');
+      const crew = document.getElementById('parallaxCrew');
+
+      if (planet) {
+        planet.style.transform = `translate3d(${xRatio * -8}px, ${yRatio * -6}px, 0)`;
+      }
+      if (crew) {
+        crew.style.transform = `translate3d(${xRatio * 12}px, ${yRatio * 10}px, 0)`;
+      }
+    });
+
+    // Close modals with Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['pilotModal', 'trainingModal', 'hangarModal'].forEach(closeModal);
+      }
+    });
+  </script>
+</body>
+</html>

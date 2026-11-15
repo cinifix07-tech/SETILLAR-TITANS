@@ -134,8 +134,8 @@ export default function MissionFlight3DScene({seconds,config,playing=false,speed
   const stage=seconds<8?'ASCENT':seconds<32?'TRANSIT':seconds<36?'ORBIT INSERTION':'SATELLITE DEPLOYED'
   return <div className={`sim-visual flight-visual flight-visual-3d${showMascot?' flight-visual-prelaunch':''}`} role="img" aria-label={`Interactive illustrative 3D flight scene: launch vehicle travelling from Earth to ${destination.name}, deploying a satellite into ${orbit.abbr} orbit${showMascot?'; astronaut mascot shown in cockpit for illustration; spacecraft remains uncrewed':''}`}>
     <Canvas frameloop={playing&&!reducedMotion?'always':'demand'} dpr={[1,1.5]} camera={{position:[-7,3,24],fov:38,near:.1,far:100}} gl={{antialias:true,alpha:false,powerPreference:'high-performance'}}><FlightObjects seconds={seconds} config={config} playing={playing&&!reducedMotion} speed={speed} showMascot={showMascot}/></Canvas>
-    <div className="flight-3d-stage-pill"><i/>{stage}<span>· {orbit.abbr} ORBIT</span></div>
+    <div className="flight-3d-stage-pill"><i/>{stage}<span> / {orbit.abbr} ORBIT</span></div>
     <span className="sim-readout">{destination.name.toUpperCase()} / {Math.floor(seconds/60*100)}% COMPLETE</span>
-    {showMascot&&<span className="flight-3d-mascot-note">ASTRONAUT MASCOT / VISUALIZATION ONLY · UNCREWED SPACECRAFT</span>}
+    {showMascot&&<span className="flight-3d-mascot-note">ASTRONAUT MASCOT / VISUALIZATION ONLY / UNCREWED SPACECRAFT</span>}
   </div>
 }

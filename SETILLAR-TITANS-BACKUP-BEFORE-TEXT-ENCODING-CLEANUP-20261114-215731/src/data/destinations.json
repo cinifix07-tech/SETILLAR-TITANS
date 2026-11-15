@@ -1,0 +1,5 @@
+[
+  {"id":"moon","name":"The Moon","difficulty":"BEGINNER","distance":1,"scienceGoal":55,"travelFuel":30,"objective":"Study polar ice and surface minerals","description":"Practice planning a short-range science mission close to Earth.","environment":"Airless surface, sharp temperature swings"},
+  {"id":"mars","name":"Mars","difficulty":"INTERMEDIATE","distance":2,"scienceGoal":80,"travelFuel":65,"objective":"Map surface minerals and seasonal dust","description":"Balance a longer cruise with reliable communications.","environment":"Thin atmosphere, dust and long communication delays"},
+  {"id":"europa","name":"Europa","difficulty":"ADVANCED","distance":3,"scienceGoal":95,"travelFuel":100,"objective":"Survey surface ice and thermal features","description":"Plan for a distant icy moon and a challenging radiation environment.","environment":"Deep space, cold and intense radiation near Jupiter"}
+]

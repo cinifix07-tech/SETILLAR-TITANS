@@ -1,0 +1,181 @@
+/* Shared tactile material system: raised housings, inset wells, and warm edge light. */
+:root {
+  --skeu-base: #15150f;
+  --skeu-raised: #24241c;
+  --skeu-raised-light: #303026;
+  --skeu-edge: #090a08;
+  --skeu-highlight: rgba(255, 247, 219, .14);
+  --skeu-amber: #f2a93b;
+  --skeu-red: #a93620;
+  --skeu-shadow: 0 9px 18px rgba(0,0,0,.42), 0 2px 3px rgba(0,0,0,.45), inset 0 1px rgba(255,255,255,.12), inset 0 -1px rgba(0,0,0,.52);
+  --skeu-inset: inset 0 2px 5px rgba(0,0,0,.62), inset 0 1px rgba(0,0,0,.35), 0 1px rgba(255,255,255,.08);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -18%, rgba(75,68,43,.34), transparent 54%),
+    radial-gradient(ellipse at 85% 75%, rgba(54,33,20,.18), transparent 40%),
+    linear-gradient(135deg,#11120e,#080907 56%,#15140f)!important;
+}
+#root::before {
+  opacity:.34;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(0,0,0,.045) 0 1px,transparent 1px 4px),
+    radial-gradient(ellipse at 50% 50%,transparent 0,rgba(0,0,0,.42) 100%);
+}
+
+/* Raised card housings with a fine top lip and deep lower edge. */
+.game-card, .panel-card, .builder-panel, .resources-panel, .dash-card, .kpi-card,
+.hub-saves, .hub-profile, .hub-shortcut, .hub-modal, .hub-member-fields,
+.luc-focus-card, .orbit-info-panel, .orbit-controls, .orbit-confirmation,
+.builder-progress, .builder-resource-card, .spacecraft-showcase,
+.destination-briefing-dialog, .launch-modal, .resource-health-dialog,
+.flight-warning-dialog, .sim-preflight-dialog, .debris-challenge-dialog,
+.radiation-game-dialog, .luc-sponsor {
+  border-radius: 12px!important;
+  border: 1px solid rgba(164,135,82,.44)!important;
+  background:
+    linear-gradient(155deg,rgba(48,47,37,.96),rgba(26,26,20,.98) 42%,rgba(16,17,13,.99))!important;
+  box-shadow: var(--skeu-shadow)!important;
+}
+.game-card, .dash-card, .kpi-card, .hub-saves, .hub-profile, .hub-shortcut,
+.luc-focus-card, .builder-panel, .resources-panel {
+  position:relative;
+}
+.game-card::before, .dash-card::before, .hub-saves::before, .hub-modal::before,
+.luc-focus-card::before, .orbit-info-panel::before, .builder-panel::before,
+.resources-panel::before, .launch-modal::before, .resource-health-dialog::before {
+  content:""; position:absolute; inset:1px; border-radius:inherit; pointer-events:none;
+  border:1px solid rgba(255,248,220,.035);
+}
+.kpi-card { overflow:hidden; }
+.hub-profile, .hub-shortcut, .destination-card, .pipeline-card, .objective-card,
+.instrument-card, .choice-row, .orbit-selector-card, .builder-step,
+.builder-payload-choice, .builder-orbit-option, .orbit-control-primary,
+.orbit-icon-control, .orbit-speed-control, .orbit-speed-control button,
+.hub-access-list>button, .hub-profile>button, .hub-shortcut>span {
+  border-radius:8px!important;
+  border:1px solid rgba(161,133,82,.42)!important;
+  background:linear-gradient(160deg,#29291f 0%,#1a1b15 58%,#10110e 100%)!important;
+  box-shadow:0 5px 10px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.12),inset 0 -2px rgba(0,0,0,.38)!important;
+}
+.objective-card.selected, .instrument-card.selected, .choice-row.selected,
+.orbit-option.selected, .destination-card.chosen, .builder-step.current,
+.builder-payload-choice.selected, .builder-orbit-option.selected,
+.orbit-selector-card.selected, .hub-access-list>button[aria-pressed="true"] {
+  background:linear-gradient(155deg,#43341d,#2b2115 55%,#17130e)!important;
+  border-color:#d3983d!important;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.48),inset 0 1px rgba(255,231,173,.18),0 0 0 1px rgba(242,169,59,.16)!important;
+}
+
+/* Controls feel like enamelled hardware: rounded caps, bevel, and a pressed state. */
+button:not(:disabled), [role="button"] {
+  border-radius:7px;
+  box-shadow:0 3px 0 rgba(0,0,0,.5),0 5px 10px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.15);
+  text-shadow:0 1px 1px rgba(0,0,0,.5);
+}
+.game-button, .btn-primary, .hub-primary, .hub-submit, .luc-cta,
+.action-buttons .btn-primary, .action-buttons .btn-launch {
+  border-radius:8px!important;
+  border:1px solid #f2b14b!important;
+  background:linear-gradient(180deg,#dc6a35 0%,#b53e25 48%,#812a1d 100%)!important;
+  box-shadow:0 2px 0 #512017,0 6px 12px rgba(0,0,0,.42),inset 0 1px rgba(255,231,193,.42),inset 0 -2px rgba(73,20,14,.52)!important;
+  color:#fff1d5!important;
+}
+.game-button.secondary, .btn-secondary, .hub-secondary, .hub-signin,
+.hub-profile>button, .orbit-control-primary, .orbit-icon-control,
+.orbit-speed-control button, .orbit-use-button, .luc-menu, .action-buttons .btn-outline,
+.hub-close, .launch-modal-close, .resource-dialog-close, .debris-close,
+.radiation-game-exit {
+  border-radius:7px!important;
+  border:1px solid rgba(186,157,98,.52)!important;
+  background:linear-gradient(180deg,#333329,#22231b 48%,#181913)!important;
+  box-shadow:0 2px 0 #080907,0 4px 8px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.13),inset 0 -1px rgba(0,0,0,.32)!important;
+}
+button:not(:disabled):hover, [role="button"]:hover {
+  box-shadow:0 4px 0 rgba(0,0,0,.48),0 9px 17px rgba(0,0,0,.36),inset 0 1px rgba(255,255,255,.22),0 0 13px rgba(242,169,59,.14)!important;
+}
+button:not(:disabled):active, [role="button"]:active {
+  translate:0 2px!important;
+  scale:.99!important;
+  box-shadow:inset 0 3px 7px rgba(0,0,0,.52),inset 0 1px rgba(0,0,0,.3)!important;
+}
+button:disabled { box-shadow:inset 0 2px 5px rgba(0,0,0,.36)!important; }
+
+/* Navigation is mounted in a metal console; selected items sit in a recessed slot. */
+.mission-sidebar, .sidebar, .hub-topbar, .topbar, .game-topbar, .luc-nav {
+  background:linear-gradient(180deg,#24241c 0%,#171812 42%,#0d0e0b 100%)!important;
+  border-color:rgba(178,148,89,.42)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.1),0 4px 12px rgba(0,0,0,.4)!important;
+}
+.sidebar-link, .nav-item, .game-nav button, .nav-link, .step, .builder-step {
+  border-radius:6px!important;
+  transition:background .22s ease,color .22s ease,box-shadow .22s ease,translate .22s ease!important;
+}
+.sidebar-link.selected, .nav-item.active, .game-nav button.selected, .nav-link.active,
+.step.current, .builder-step.current {
+  background:linear-gradient(160deg,#39301f,#211a11)!important;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.5),inset 0 1px rgba(255,238,196,.12)!important;
+}
+.sidebar-link.selected::after, .nav-item.active::after, .game-nav button.selected::after {
+  height:3px; bottom:3px; border-radius:4px;
+  box-shadow:0 0 8px rgba(242,169,59,.42),inset 0 1px rgba(255,255,255,.32);
+}
+
+/* Inputs and meters are recessed into their panels. */
+.field input:not([type=range]), .field select, .hub-modal input, .hub-modal select,
+input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea {
+  border-radius:6px!important;
+  background:linear-gradient(180deg,#080907,#11120e)!important;
+  border:1px solid #514b3a!important;
+  box-shadow:var(--skeu-inset)!important;
+}
+.field input:focus, .field select:focus, .hub-modal input:focus, .hub-modal select:focus,
+input:focus, select:focus, textarea:focus {
+  box-shadow:var(--skeu-inset),0 0 0 2px rgba(242,169,59,.24)!important;
+}
+.meter-track, .meter, .mini-progress, .sim-track, .builder-progress-track {
+  border-radius:8px!important; padding:1px; background:#090a08!important;
+  box-shadow:var(--skeu-inset)!important;
+}
+.meter-track i, .mini-progress i, .sim-track i, .builder-progress-track i {
+  border-radius:7px!important; box-shadow:inset 0 1px rgba(255,255,255,.24),0 0 7px rgba(224,72,38,.34);
+}
+.stepper, .builder-stepper, .orbit-speed-control, .luc-data-bars {
+  border-radius:9px!important; background:#0b0c09!important; box-shadow:var(--skeu-inset)!important;
+}
+.luc-sponsor { background:linear-gradient(180deg,#faf0d9,#cfc2a5)!important; color:#28251e!important; border-color:#fff3d4!important; box-shadow:0 3px 0 #756b55,0 6px 9px rgba(0,0,0,.35),inset 0 1px #fff!important; }
+.luc-focus-card, .hub-modal, .launch-modal, .resource-health-dialog, .flight-warning-dialog,
+.destination-briefing-dialog, .sim-preflight-dialog, .debris-challenge-dialog, .radiation-game-dialog {
+  border-radius:14px!important;
+  box-shadow:0 25px 65px rgba(0,0,0,.68),inset 0 2px rgba(255,255,255,.12),inset 0 -3px rgba(0,0,0,.55)!important;
+}
+.hub-modal-scrim, .launch-modal-backdrop, .flight-warning-scrim, .resource-dialog-backdrop,
+.destination-briefing-backdrop, .sim-preflight-scrim, .debris-challenge-scrim {
+  background:rgba(3,4,3,.8)!important;
+  backdrop-filter:blur(9px) saturate(.75)!important;
+}
+.luc-earth, .hub-planet, .planet, .sim-planet, .static-earth {
+  box-shadow:inset -18px -18px 28px rgba(0,0,0,.68),inset 7px 5px 18px rgba(255,222,157,.2),0 0 40px rgba(224,106,53,.22)!important;
+}
+
+@media (prefers-reduced-motion:no-preference) {
+  .game-card, .dash-card, .hub-profile, .hub-shortcut, .objective-card, .instrument-card,
+  .choice-row, .pipeline-card, .destination-card, .orbit-selector-card, .luc-sponsor {
+    transition:translate .24s cubic-bezier(.2,.75,.25,1),box-shadow .24s ease,border-color .22s ease,filter .22s ease!important;
+  }
+  .game-card:hover, .dash-card:hover, .hub-shortcut:hover, .hub-profile:hover,
+  .objective-card:hover, .instrument-card:hover, .choice-row:hover, .pipeline-card:hover,
+  .destination-card:hover, .orbit-selector-card:hover {
+    translate:0 -3px;
+    box-shadow:0 16px 24px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.14),0 0 0 1px rgba(242,169,59,.2)!important;
+  }
+}
+
+@media (max-width:760px) {
+  .game-card, .dash-card, .hub-saves, .builder-panel, .resources-panel { box-shadow:0 5px 12px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.11),inset 0 -1px rgba(0,0,0,.44)!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; }
+}

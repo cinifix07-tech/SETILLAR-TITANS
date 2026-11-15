@@ -1,0 +1,26 @@
+{
+  "missionId": "001",
+  "missionName": "Earth observation",
+  "missionObjective": "Design a satellite that collects useful Earth observation data and returns it to the ground.",
+  "defaultConfig": {
+    "objective": "coast",
+    "craft": "pathfinder",
+    "instruments": ["camera"],
+    "rocket": "atlas",
+    "orbit": "sso",
+    "duration": 12
+  },
+  "objectives": {
+    "coast": "Changing coastlines",
+    "crops": "Crop health",
+    "fires": "Heat & wildfires"
+  },
+  "builderSteps": [
+    "Objective",
+    "Spacecraft",
+    "Instruments",
+    "Launch",
+    "Orbit & duration",
+    "Review"
+  ]
+}

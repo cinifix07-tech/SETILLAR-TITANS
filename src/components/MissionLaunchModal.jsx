@@ -39,16 +39,16 @@ export default function MissionLaunchModal({ open, config, calc, onClose, onStar
   return <div className="launch-modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
     <section className="launch-modal" role="dialog" aria-modal="true" aria-labelledby="launch-modal-title" aria-describedby="launch-modal-note">
       <header className="launch-modal-header">
-        <div><span className="game-eyebrow">MISSION SIMULATION / PRE-LAUNCH</span><h2 id="launch-modal-title">{config.name || 'Untitled mission'}</h2><p>{calc.bus.name} · {destination.name} · {orbit.abbr} orbit</p></div>
-        <button ref={closeButton} className="launch-modal-close" onClick={onClose} aria-label="Close launch preview">×</button>
+        <div><span className="game-eyebrow">MISSION SIMULATION / PRE-LAUNCH</span><h2 id="launch-modal-title">{config.name || 'Untitled mission'}</h2><p>{calc.bus.name} / {destination.name} / {orbit.abbr} orbit</p></div>
+        <button ref={closeButton} className="launch-modal-close" onClick={onClose} aria-label="Close launch preview">x</button>
       </header>
-      <div className="launch-modal-scene"><MissionFlightScene seconds={0} config={config} showMascot/><div className="launch-mascot-note" id="launch-modal-note"><span aria-hidden="true">✦</span> ASTRONAUT MASCOT / VISUALIZATION ONLY — THIS IS AN UNCREWED SPACECRAFT</div></div>
+      <div className="launch-modal-scene"><MissionFlightScene seconds={0} config={config} showMascot/><div className="launch-mascot-note" id="launch-modal-note"><span aria-hidden="true">✦</span> ASTRONAUT MASCOT / VISUALIZATION ONLY  -  THIS IS AN UNCREWED SPACECRAFT</div></div>
       <div className="launch-modal-details">
         <div><small>DESTINATION</small><b>{destination.name}</b></div>
         <div><small>SPACECRAFT</small><b>{calc.bus.name}</b></div>
-        <div><small>SELECTED ORBIT</small><b>{orbit.abbr} · {orbit.name}</b></div>
+        <div><small>SELECTED ORBIT</small><b>{orbit.abbr} / {orbit.name}</b></div>
       </div>
-      <footer className="launch-modal-actions"><span>Illustrative flight sequence · not to scale</span><div><button className="game-button secondary" onClick={onClose}>BACK TO REVIEW</button><button className="game-button" onClick={onStart}>▶ PLAY SIMULATION</button></div></footer>
+      <footer className="launch-modal-actions"><span>Illustrative flight sequence / not to scale</span><div><button className="game-button secondary" onClick={onClose}>BACK TO REVIEW</button><button className="game-button" onClick={onStart}>▶ PLAY SIMULATION</button></div></footer>
     </section>
   </div>
 }
